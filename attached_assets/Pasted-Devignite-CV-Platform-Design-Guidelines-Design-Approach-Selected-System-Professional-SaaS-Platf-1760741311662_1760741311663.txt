@@ -1,0 +1,165 @@
+Devignite CV Platform - Design Guidelines
+Design Approach
+Selected System: Professional SaaS Platform Design (inspired by Linear, Notion, and Stripe) Rationale: Devignite is a utility-focused professional tool where trust, clarity, and efficiency are paramount. Users need to input sensitive career information, so the interface must feel secure, polished, and authoritative.
+
+Core Design Principles
+Professional Authority: Design conveys expertise and trustworthiness
+Guided Clarity: Every step is clear with helpful validation and tooltips
+Progress Transparency: Users always know where they are in the process
+Refined Simplicity: Clean, uncluttered interfaces that focus on the task
+Color Palette
+Light Mode
+Primary Brand: 15 85% 50% (vibrant orange-red from flame logo)
+Primary Hover: 15 85% 45%
+Background Base: 0 0% 100%
+Background Elevated: 0 0% 98%
+Background Subtle: 220 15% 97%
+Border Default: 220 13% 91%
+Text Primary: 220 15% 15%
+Text Secondary: 220 10% 45%
+Success: 142 71% 45%
+Warning: 38 92% 50%
+Error: 0 72% 51%
+Dark Mode
+Primary Brand: 15 90% 55%
+Primary Hover: 15 90% 60%
+Background Base: 220 15% 9%
+Background Elevated: 220 13% 13%
+Background Subtle: 220 13% 16%
+Border Default: 220 13% 23%
+Text Primary: 220 15% 95%
+Text Secondary: 220 10% 65%
+Typography
+Font Families:
+
+Primary: Inter (Google Fonts) - for UI, forms, body text
+Display: Cal Sans (local fallback: Inter) - for headings and hero sections
+Type Scale:
+
+Hero Display: text-5xl md:text-6xl font-bold (Cal Sans)
+Page Heading: text-3xl md:text-4xl font-bold
+Section Heading: text-2xl font-semibold
+Card Title: text-lg font-semibold
+Body Text: text-base
+Small Text: text-sm
+Tiny Text: text-xs
+Layout System
+Spacing Primitives: Use Tailwind units of 2, 4, 6, 8, 12, 16, 20, 24 for consistent rhythm
+
+Component padding: p-4 to p-6
+Section spacing: py-12 md:py-20
+Card gaps: gap-6 to gap-8
+Form field spacing: space-y-4
+Container Strategy:
+
+Max-width: max-w-7xl mx-auto px-4 md:px-6
+Forms: max-w-3xl mx-auto
+Dashboard: max-w-7xl for full layout visibility
+Component Library
+Navigation
+Header: Fixed top navigation with logo (flame + Devignite wordmark), minimal links (How it Works, Pricing, Login/Signup), primary CTA button (Get Started)
+
+Forms & Inputs
+Multi-Step Form Design:
+
+Progress indicator at top showing 4 steps: Personal Info → Experience → Education & Skills → Template Selection
+Each step in a clean card with subtle shadow
+Input fields: Full-width with labels above, helper text below, real-time validation icons
+Required field indicators with asterisks
+Tooltips using question mark icons with popover explanations
+Navigation: Back/Continue buttons at bottom, Continue button uses primary brand color
+Input Styling:
+
+Height: h-12
+Border: border-2 with focus:border-primary transition
+Background: Dark mode aware with proper contrast
+Placeholder: text-muted-foreground
+Template Gallery
+Display: Grid layout (grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6) Template Cards:
+
+Aspect ratio container for iframe preview
+Hover effect: subtle lift with shadow-lg
+Selection state: border-4 border-primary
+Template name and brief description below preview
+"Select" button overlay on hover
+Payment Section
+Pricing Tiers: Three cards side-by-side (stack on mobile)
+
+Basic CV: Single column focus
+CV + Cover Letter: Highlighted with "Most Popular" badge
+Comprehensive Package: Premium tier
+Each card: Price (large, bold), feature list with checkmarks, CTA button
+Payment Flow:
+
+Stripe embedded form in clean modal
+Order summary sidebar showing selected package, price breakdown
+Security badges (256-bit SSL, Secure Payment)
+Dashboard
+Order Status Card:
+
+Large status badge (Processing/Completed)
+Progress bar with percentage
+Estimated completion time
+Download button (appears when ready)
+CV Preview
+Split View:
+
+Left: Rendered CV preview in iframe (60% width)
+Right: Basic edit controls (40% width) - name, contact info, template switcher
+Top bar: Finalize & Pay button (sticky)
+Imagery
+Hero Section: Full-width hero with background featuring subtle gradient mesh (orange to purple) with overlaid professional illustration of diverse people working on laptops with CV documents floating around them. Alternatively, use abstract shapes representing document stacks and career growth. Image should be optimistic and professional.
+
+Template Previews: Actual CV template screenshots rendered in iframes
+
+Trust Indicators: Logos of companies or universities (if available) as social proof
+
+Illustrations: Minimalist line-art style illustrations for empty states and success confirmations
+
+Visual Elements
+Cards: Rounded corners (rounded-lg), subtle shadows, hover states with gentle elevation change
+
+Buttons:
+
+Primary: Solid fill with brand color, rounded-lg, px-6 py-3
+Secondary: Border with border-2, transparent fill
+Over images: Backdrop blur (backdrop-blur-md) with semi-transparent background
+Badges: Small rounded-full pills for status (Processing, Completed, Most Popular)
+
+Icons: Lucide React icon set throughout - consistent stroke width, 20-24px size
+
+Dividers: Subtle horizontal rules (border-t border-border) between major sections
+
+Interactions
+Minimal Animation:
+
+Form validation: Gentle shake on error
+Card hover: Subtle translateY(-4px) with transition-transform duration-200
+Button states: Scale down slightly on active (scale-95)
+Page transitions: Fade in content (opacity-0 to opacity-100)
+No distracting animations - this is a professional tool where clarity trumps motion
+
+Accessibility
+Consistent dark mode across all form inputs and text fields
+WCAG AA contrast ratios minimum
+Focus states clearly visible with ring-2 ring-primary ring-offset-2
+Screen reader labels on all form fields
+Keyboard navigation support throughout
+Key Screens Layout
+Landing Page:
+
+Hero with headline "Create Your Professional CV in Minutes", subheading, and CTA
+How It Works (4 steps with icons)
+Template Showcase preview
+Pricing section
+FAQ accordion
+Footer with links and Devignite branding
+Form Wizard: Clean centered layout with progress bar, current step content, and navigation
+
+Template Selection: Gallery grid with search/filter bar above
+
+Dashboard: Sidebar navigation + main content area showing order cards
+
+Payment: Centered modal with Stripe form and order summary
+
+This design creates a polished, professional platform that instills confidence while making CV creation effortless.
