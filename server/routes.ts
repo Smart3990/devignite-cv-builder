@@ -391,12 +391,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Initialize Paystack transaction
+      const callbackUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}/payment/callback`
+        : 'http://localhost:5000/payment/callback';
+      
       const paystackResponse = await paystackClient.transaction.initialize({
         email,
         amount: tier.price, // Amount in pesewas (100 pesewas = 1 GHS)
         currency: "GHS",
         reference: `ORDER_${order.id}`,
-        callback_url: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/callback`,
+        callback_url: callbackUrl,
         metadata: {
           order_id: order.id,
           cv_id: cvId,
