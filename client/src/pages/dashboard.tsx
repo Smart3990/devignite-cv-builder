@@ -141,7 +141,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-semibold">
-                          ${(order.amount / 100).toFixed(2)}
+                          GHS {(order.amount / 100).toFixed(0)}
                         </p>
                       </div>
                     </div>
