@@ -3,15 +3,24 @@ import { Resend } from 'resend';
 let connectionSettings: any;
 
 async function getCredentials() {
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME
+  // Check for direct environment variable first (for external deployments)
+  if (process.env.RESEND_API_KEY) {
+    return {
+      apiKey: process.env.RESEND_API_KEY,
+      fromEmail: process.env.RESEND_FROM_EMAIL || 'noreply@devignite.com'
+    };
+  }
+
+  // Fallback to Replit connector if available (for Replit environment)
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY 
     ? 'repl ' + process.env.REPL_IDENTITY 
     : process.env.WEB_REPL_RENEWAL 
     ? 'depl ' + process.env.WEB_REPL_RENEWAL 
     : null;
 
-  if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
+  if (!hostname || !xReplitToken) {
+    throw new Error('Resend API key not found. Set RESEND_API_KEY environment variable.');
   }
 
   connectionSettings = await fetch(
@@ -34,6 +43,6 @@ export async function getUncachableResendClient() {
   const credentials = await getCredentials();
   return {
     client: new Resend(credentials.apiKey),
-    fromEmail: connectionSettings.settings.from_email
+    fromEmail: credentials.fromEmail
   };
 }

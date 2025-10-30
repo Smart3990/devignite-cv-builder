@@ -391,9 +391,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Initialize Paystack transaction
-      const callbackUrl = process.env.REPLIT_DEV_DOMAIN 
-        ? `https://${process.env.REPLIT_DEV_DOMAIN}/payment/callback`
-        : 'http://localhost:5000/payment/callback';
+      // Use APP_URL for external deployments, fallback to REPLIT_DEV_DOMAIN for Replit, or localhost for local dev
+      const baseUrl = process.env.APP_URL 
+        || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : null)
+        || 'http://localhost:5000';
+      const callbackUrl = `${baseUrl}/payment/callback`;
       
       const paystackResponse = await paystackClient.transaction.initialize({
         email,
@@ -709,7 +711,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               </ul>
             </div>
             
-            <p>You can always access your CV and make edits through your <a href="${process.env.REPLIT_DEV_DOMAIN || 'https://devignite.com'}/dashboard" style="color: #ef4b23;">dashboard</a>.</p>
+            <p>You can always access your CV and make edits through your <a href="${process.env.APP_URL || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'https://devignite.com')}/dashboard" style="color: #ef4b23;">dashboard</a>.</p>
             
             <p>Need help? Contact us at <a href="mailto:support@devignite.com" style="color: #ef4b23;">support@devignite.com</a></p>
             

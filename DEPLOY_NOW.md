@@ -53,6 +53,7 @@ Your Devignite CV Platform is ready for deployment to GitHub and hosting platfor
 Copy these from your Replit Secrets to your hosting platform:
 
 ```
+# Required for external deployments
 CLERK_SECRET_KEY
 CLERK_PUBLISHABLE_KEY
 VITE_CLERK_PUBLISHABLE_KEY
@@ -61,8 +62,12 @@ PAYSTACK_SECRET_KEY
 PAYSTACK_PUBLIC_KEY
 GROQ_API_KEY
 RESEND_API_KEY
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+APP_URL=https://your-deployment-url.com
 NODE_ENV=production
 ```
+
+**Note:** The platform is now 100% independent from Replit! See [INDEPENDENCE.md](./INDEPENDENCE.md) for details.
 
 ## 🎨 Current Pricing (Ghana Cedis)
 
