@@ -223,8 +223,8 @@ export type Order = typeof orders.$inferSelect;
 export const PRICING_TIERS = {
   basic: {
     name: "Basic CV",
-    price: 499, // $4.99 in cents (100 cents = 1 USD)
-    displayPrice: "$4.99",
+    price: 5000, // GHS 50 in pesewas (100 pesewas = 1 GHS)
+    displayPrice: "GHS 50",
     features: [
       "1 Professional CV Template",
       "PDF Download",
@@ -238,8 +238,8 @@ export const PRICING_TIERS = {
   },
   standard: {
     name: "CV + Cover Letter",
-    price: 699, // $6.99 in cents
-    displayPrice: "$6.99",
+    price: 12000, // GHS 120 in pesewas
+    displayPrice: "GHS 120",
     features: [
       "1 Professional CV Template",
       "Matching Cover Letter",
@@ -255,8 +255,8 @@ export const PRICING_TIERS = {
   },
   premium: {
     name: "Comprehensive Package",
-    price: 999, // $9.99 in cents
-    displayPrice: "$9.99",
+    price: 15000, // GHS 150 in pesewas
+    displayPrice: "GHS 150",
     features: [
       "3 Professional CV Templates",
       "Matching Cover Letter",

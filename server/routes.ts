@@ -379,7 +379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cvId,
         packageType,
         amount: tier.price,
-        currency: "USD",
+        currency: "GHS",
         status: "pending",
         progress: 0,
         userId, // Link order to authenticated user
@@ -393,8 +393,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Initialize Paystack transaction
       const paystackResponse = await paystackClient.transaction.initialize({
         email,
-        amount: tier.price, // Amount in cents (100 cents = 1 USD)
-        currency: "USD",
+        amount: tier.price, // Amount in pesewas (100 pesewas = 1 GHS)
+        currency: "GHS",
         reference: `ORDER_${order.id}`,
         callback_url: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/callback`,
         metadata: {

@@ -62,11 +62,23 @@ The platform features a professional SaaS design inspired by Linear/Notion, util
 - **TanStack Query**: For data fetching.
 - **Vite**: Frontend build tool.
 
-## Recent Updates (October 24, 2025)
+## Recent Updates
 
-### Payment System & Premium Features
+### October 30, 2025 - Replit Environment Setup
 **Changes Made**:
-1. **Currency**: Set to USD ($4.99, $6.99, $9.99) for international market access
+1. **Environment Setup**: Configured for Replit deployment with proper host settings (0.0.0.0) and proxy support
+2. **Database**: PostgreSQL database provisioned and schema migrated successfully
+3. **Integrations**: Resend email service connected via Replit integration
+4. **Currency Update**: Changed from USD to Ghana Cedis (GHS) for Paystack compatibility
+   - Basic CV: GHS 50
+   - CV + Cover Letter: GHS 120
+   - Comprehensive Package: GHS 150
+5. **API Keys**: All required secrets configured (Clerk, Paystack, Groq)
+6. **Deployment**: Configured for Autoscale deployment with build and run commands
+
+### October 24, 2025 - Payment System & Premium Features
+**Changes Made**:
+1. **Currency**: Originally set to USD ($4.99, $6.99, $9.99), now updated to GHS (50, 120, 150)
 2. **Real Paystack Integration**: All payments go through Paystack - no development mode bypass
 3. **Payment Flow**: Pricing page → Paystack payment page → callback verification → order success → dashboard
 4. **Premium Feature Indicators**: 
@@ -121,9 +133,20 @@ The platform features a professional SaaS design inspired by Linear/Notion, util
 ## Known Issues & Solutions
 
 ### Currency Configuration
-The platform is configured to use USD for international payments. If your Paystack account doesn't support USD:
+The platform is currently configured to use Ghana Cedis (GHS) for Paystack payments. Pricing tiers:
+- Basic CV: GHS 50
+- CV + Cover Letter: GHS 120
+- Comprehensive Package: GHS 150
 
-1. Log into your Paystack Dashboard at https://dashboard.paystack.com
-2. Navigate to Settings → Preferences → Currencies
-3. Enable USD (may require business verification)
-4. Alternatively, update `shared/schema.ts` PRICING_TIERS and `server/routes.ts` payment initialization to use your supported currency (e.g., NGN)
+To change currency:
+1. Update `shared/schema.ts` PRICING_TIERS (price in pesewas, displayPrice)
+2. Update `server/routes.ts` payment initialization currency field
+3. Ensure your Paystack account supports the selected currency
+
+### Replit Environment
+The application is configured to run in the Replit environment with:
+- **Port**: 5000 (both frontend and backend served from Express)
+- **Host**: 0.0.0.0 for proper proxy support
+- **Workflow**: npm run dev (development), npm start (production)
+- **Database**: PostgreSQL (automatically provisioned)
+- **Email**: Resend integration (no manual API key needed)
