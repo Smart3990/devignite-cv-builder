@@ -94,6 +94,30 @@ The platform features a professional SaaS design inspired by Linear/Notion, util
 
 **Current Limitation**: Cover letter and LinkedIn PDFs currently use placeholder content. Future enhancement needed to persist AI-generated content from the preview phase for use in downloaded PDFs.
 
+## Replit Environment Setup (October 30, 2025)
+
+### Configuration Completed
+1. **Database**: PostgreSQL database provisioned and schema pushed successfully using Drizzle
+2. **Vite Configuration**: Updated to allow all hosts (`allowedHosts: true`) for Replit proxy compatibility
+3. **Resend Integration**: Connected via Replit Connectors for email delivery
+4. **Environment Variables**: All required API keys configured:
+   - Clerk (authentication)
+   - Paystack (payments)
+   - Groq (AI features)
+   - Database credentials (auto-provisioned)
+   - Session secret
+5. **Workflow**: Configured to run on port 5000 with webview output
+6. **Deployment**: Set up for autoscale deployment target with build and start scripts
+7. **Dependencies**: All npm packages installed successfully
+8. **Templates**: 12 CV templates seeded to database on startup
+
+### Development Server
+- **Dev Command**: `npm run dev` (runs Express server with Vite middleware)
+- **Port**: 5000 (frontend and backend unified)
+- **Host**: 0.0.0.0 (allows Replit proxy access)
+- **Build Command**: `npm run build`
+- **Production Command**: `npm start`
+
 ## Known Issues & Solutions
 
 ### Currency Configuration
