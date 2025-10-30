@@ -6,7 +6,7 @@ A professional SaaS platform for creating, customizing, and purchasing CVs with 
 
 - 🎨 **12 Professional CV Templates** - ATS-friendly designs inspired by RxResume
 - 🤖 **AI-Powered Optimization** - CV content enhancement, cover letter generation, LinkedIn optimization, and ATS analysis using Groq AI
-- 💳 **Paystack Payment Integration** - Secure payment processing in USD (US Dollars)
+- 💳 **Paystack Payment Integration** - Secure payment processing in GHS (Ghana Cedis)
 - 📧 **Email Delivery** - Automated CV delivery via Resend
 - 📄 **PDF Generation** - High-quality PDF export using Puppeteer
 - 🔐 **Clerk Authentication** - Modal-based sign-in with Google, GitHub, Apple, and Email
@@ -109,7 +109,7 @@ git push -u origin main
    - Connect your GitHub repository
    - Configure build settings:
      - Build command: `npm run build`
-     - Publish directory: `dist`
+     - Publish directory: `dist/public`
      - Functions directory: (leave empty - we're using Express)
 
 3. **Environment Variables**:
@@ -130,18 +130,18 @@ git push -u origin main
 
 ## Package Tiers
 
-### Basic - $4.99
+### Basic - GHS 50
 - 1 CV template
 - 1 edit
 - PDF download
 
-### Standard - $6.99
+### Standard - GHS 120
 - 1 CV template
 - 3 edits
 - PDF download
 - AI-powered cover letter generation
 
-### Premium - $9.99
+### Premium - GHS 150
 - 3 CV templates
 - Unlimited edits
 - PDF download
