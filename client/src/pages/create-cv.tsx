@@ -122,6 +122,10 @@ export default function CreateCVPage() {
         } catch (e) {
           console.error("Failed to load saved CV:", e);
         }
+      } else {
+        // Starting fresh - clear premium feature flags
+        localStorage.removeItem('used-cover-letter');
+        localStorage.removeItem('used-linkedin');
       }
     };
     
