@@ -92,6 +92,11 @@ export default function CreateCVPage() {
   // Load existing CV data on mount
   useEffect(() => {
     const loadExistingCv = () => {
+      // Always clear premium feature flags when entering CV creation
+      // This ensures fresh tracking for each CV editing session
+      localStorage.removeItem('used-cover-letter');
+      localStorage.removeItem('used-linkedin');
+      
       const savedCv = localStorage.getItem('pending-cv');
       if (savedCv) {
         try {
@@ -122,10 +127,6 @@ export default function CreateCVPage() {
         } catch (e) {
           console.error("Failed to load saved CV:", e);
         }
-      } else {
-        // Starting fresh - clear premium feature flags
-        localStorage.removeItem('used-cover-letter');
-        localStorage.removeItem('used-linkedin');
       }
     };
     
