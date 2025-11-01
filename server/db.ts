@@ -1,7 +1,7 @@
-import { drizzle } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "@shared/schema";
 import { neon } from "@neondatabase/serverless";
-import { Client } from "pg";
+import { Pool } from "pg";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
@@ -9,21 +9,19 @@ if (!process.env.DATABASE_URL) {
 
 let db;
 
-// Detect if DATABASE_URL contains 'neon.tech' (or any other indicator)
 if (process.env.DATABASE_URL.includes("neon.tech")) {
-  // ✅ Connect using Neon
+  // ✅ Neon PostgreSQL (serverless)
   console.log("🔌 Using Neon PostgreSQL setup");
   const sql = neon(process.env.DATABASE_URL);
   db = drizzle(sql, { schema });
 } else {
-  // ✅ Connect using Render or standard PostgreSQL
+  // ✅ Render or standard PostgreSQL
   console.log("🔌 Using standard PostgreSQL setup (Render or local)");
-  const client = new Client({
+  const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
   });
-  await client.connect();
-  db = drizzle(client, { schema });
+  db = drizzle(pool, { schema });
 }
 
 export { db };
