@@ -713,7 +713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             <p>You can always access your CV and make edits through your <a href="${process.env.APP_URL || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'https://devignite.com')}/dashboard" style="color: #ef4b23;">dashboard</a>.</p>
             
-            <p>Need help? Contact us at <a href="mailto:support@devignite.com" style="color: #ef4b23;">support@devignite.com</a></p>
+            <p>Need help? Contact us at <a href="mailto:devignite.cv@gmail.com" style="color: #ef4b23;">devignite.cv@gmail.com</a></p>
             
             <p style="margin-top: 30px;">Best regards,<br/>The Devignite Team</p>
           </div>
