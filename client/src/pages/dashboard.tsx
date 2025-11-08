@@ -4,14 +4,27 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { Download, Clock, CheckCircle, AlertCircle, RefreshCw, Edit, Mail, FileText, Crown } from "lucide-react";
+import { Download, Clock, CheckCircle, AlertCircle, RefreshCw, Edit, Mail, FileText, Crown, Sparkles, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { UsageLimitsCard, usageLimitIcons } from "@/components/usage-limits-card";
 import type { Order } from "@shared/schema";
 
 export default function DashboardPage() {
   const { toast } = useToast();
+  
+  // Fetch user plan status and limits
+  const { data: planStatus, isLoading: isLoadingPlan } = useQuery<{
+    planId: string;
+    planName: string;
+    limits: Record<string, number>;
+    usage: Record<string, number>;
+    features: Record<string, boolean>;
+  }>({
+    queryKey: ["/api/user/plan-status"],
+  });
+
   const { data: orders = [], isLoading, error, refetch } = useQuery<Order[]>({
     queryKey: ["/api/orders"],
     refetchInterval: (data) => {
@@ -21,6 +34,39 @@ export default function DashboardPage() {
       return hasProcessing ? 3000 : false; // Refresh every 3 seconds if processing
     },
   });
+
+  // Calculate usage limits display data
+  const getLimitColor = (current: number, limit: number): "green" | "yellow" | "red" => {
+    if (limit === -1) return "green"; // Unlimited
+    const percentage = (current / limit) * 100;
+    if (percentage >= 100) return "red";
+    if (percentage >= 80) return "yellow";
+    return "green";
+  };
+
+  const usageLimits = planStatus ? [
+    {
+      label: "CVs Created",
+      current: planStatus.usage?.cvGenerations || 0,
+      limit: planStatus.limits?.cvGenerations || 0,
+      icon: usageLimitIcons.cvs,
+      color: getLimitColor(planStatus.usage?.cvGenerations || 0, planStatus.limits?.cvGenerations || 0)
+    },
+    {
+      label: "AI Optimizations",
+      current: planStatus.usage?.aiRuns || 0,
+      limit: planStatus.limits?.aiRuns || 0,
+      icon: usageLimitIcons.aiRuns,
+      color: getLimitColor(planStatus.usage?.aiRuns || 0, planStatus.limits?.aiRuns || 0)
+    },
+    {
+      label: "Cover Letters",
+      current: planStatus.usage?.coverLetterGenerations || 0,
+      limit: planStatus.limits?.coverLetterGenerations || 0,
+      icon: usageLimitIcons.coverLetters,
+      color: getLimitColor(planStatus.usage?.coverLetterGenerations || 0, planStatus.limits?.coverLetterGenerations || 0)
+    },
+  ] : [];
 
   const handleDownload = async (orderId: string, fileName: string, type: string = 'cv') => {
     try {
@@ -92,14 +138,26 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-muted/30 py-12">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
+        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2" data-testid="text-dashboard-title">
             My Dashboard
           </h1>
           <p className="text-muted-foreground">
-            View and manage your CV orders
+            View and manage your CV orders and plan usage
           </p>
         </div>
+
+        {/* Usage Limits Card */}
+        {!isLoadingPlan && planStatus && (
+          <div className="mb-8">
+            <UsageLimitsCard
+              planName={planStatus.planName}
+              limits={usageLimits}
+              showUpgradeButton={true}
+            />
+          </div>
+        )}
 
         {orders.length === 0 ? (
           <Card className="p-12 text-center">
