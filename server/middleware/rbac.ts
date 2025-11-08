@@ -122,9 +122,9 @@ const FEATURE_NAMES: Record<string, string> = {
  */
 function getRequiredPlanForFeature(feature: string): 'pro' | 'premium' | null {
   const plans = pricingConfig.plans;
-  const basicLimit = plans.basic.limits[feature] || 0;
-  const proLimit = plans.pro.limits[feature] || 0;
-  const premiumLimit = plans.premium.limits[feature] || 0;
+  const basicLimit = (plans.basic.limits as Record<string, number>)[feature] || 0;
+  const proLimit = (plans.pro.limits as Record<string, number>)[feature] || 0;
+  const premiumLimit = (plans.premium.limits as Record<string, number>)[feature] || 0;
   
   // If basic has limit but pro has higher, Pro is minimum required
   if (basicLimit < proLimit) {

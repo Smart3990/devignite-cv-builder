@@ -14,6 +14,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   getAllUsers(): Promise<User[]>;
   updateUserPlan(userId: string, plan: string): Promise<void>;
+  updateUserRole(userId: string, role: string): Promise<void>;
   
   // CV operations
   getCv(id: string): Promise<Cv | undefined>;
@@ -168,6 +169,13 @@ export class DbStorage implements IStorage {
     await db
       .update(users)
       .set({ currentPlan: plan, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async updateUserRole(userId: string, role: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ role, updatedAt: new Date() })
       .where(eq(users.id, userId));
   }
 
@@ -545,6 +553,15 @@ export class MemStorage implements IStorage {
     const user = this.users.get(userId);
     if (user) {
       user.currentPlan = plan;
+      user.updatedAt = new Date();
+      this.users.set(userId, user);
+    }
+  }
+
+  async updateUserRole(userId: string, role: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.role = role;
       user.updatedAt = new Date();
       this.users.set(userId, user);
     }

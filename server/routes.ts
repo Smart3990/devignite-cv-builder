@@ -133,6 +133,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // DEVELOPMENT ONLY: Promote current user to admin for testing
+  app.post('/api/dev/make-me-admin', isAuthenticated, async (req: any, res) => {
+    // Security: Only allow in development environment
+    if (process.env.NODE_ENV !== 'development') {
+      return res.status(403).json({ 
+        error: 'This endpoint is only available in development mode' 
+      });
+    }
+
+    try {
+      const userId = getUserId(req);
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Update user role to admin
+      await storage.updateUserRole(userId, 'admin');
+      
+      console.log(`🔐 [DEV] User ${user.email} promoted to admin for testing`);
+      
+      res.json({ 
+        success: true, 
+        message: 'You are now an admin! Refresh the page to access admin routes.',
+        user: {
+          id: userId,
+          email: user.email,
+          role: 'admin'
+        }
+      });
+    } catch (error) {
+      console.error('Error promoting user to admin:', error);
+      res.status(500).json({ error: 'Failed to promote user to admin' });
+    }
+  });
+
   // Upgrade Plan endpoint - Upgrades user to a higher plan
   app.post('/api/user/upgrade-plan', isAuthenticated, async (req: any, res) => {
     try {
