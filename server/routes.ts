@@ -67,7 +67,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           firstName: first_name || '',
           lastName: last_name || '',
           profileImageUrl: image_url || null,
+          // Explicitly set Basic plan for new users
+          currentPlan: 'basic',
+          planStartDate: new Date(),
         });
+        
+        // Log new user creation
+        if (type === 'user.created') {
+          console.log(`✅ New user created: ${id}, assigned to Basic plan`);
+        }
       }
       
       res.json({ success: true });
@@ -113,6 +121,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching plan status:", error);
       res.status(500).json({ message: "Failed to fetch plan status" });
+    }
+  });
+
+  // Upgrade Plan endpoint - Upgrades user to a higher plan
+  app.post('/api/user/upgrade-plan', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getUserId(req);
+      const { plan } = req.body;
+      
+      if (!plan || !['basic', 'pro', 'premium'].includes(plan)) {
+        return res.status(400).json({ error: "Invalid plan specified" });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      const currentPlan = user.currentPlan;
+      const planOrder = ['basic', 'pro', 'premium'];
+      const currentIndex = planOrder.indexOf(currentPlan);
+      const targetIndex = planOrder.indexOf(plan);
+      
+      if (targetIndex <= currentIndex) {
+        return res.status(400).json({ 
+          error: "Invalid upgrade path",
+          message: targetIndex === currentIndex 
+            ? "You are already on this plan" 
+            : "You can only upgrade to a higher plan"
+        });
+      }
+      
+      // Update user plan
+      await storage.updateUserPlan(userId, plan);
+      
+      // Reset usage counters for the new plan
+      await storage.resetUsageForUser(userId);
+      
+      console.log(`✅ User ${userId} upgraded from ${currentPlan} to ${plan}`);
+      
+      res.json({ 
+        success: true, 
+        plan,
+        previousPlan: currentPlan,
+        message: `Successfully upgraded to ${plan} plan`
+      });
+    } catch (error) {
+      console.error("Error upgrading plan:", error);
+      res.status(500).json({ error: "Failed to upgrade plan" });
     }
   });
 
@@ -1072,13 +1129,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/api-keys", isAuthenticated, requireAdmin, async (req, res) => {
     try {
-      const { service, key } = req.body;
+      const { service, keyValue, displayName } = req.body;
       
-      if (!service || !key) {
-        return res.status(400).json({ error: "Service and key are required" });
+      if (!service || !keyValue) {
+        return res.status(400).json({ error: "Service and key value are required" });
       }
       
-      const apiKey = await storage.upsertApiKey(service, key);
+      const apiKey = await storage.upsertApiKey({ 
+        service, 
+        keyValue,
+        displayName: displayName || service 
+      });
       res.json(apiKey);
     } catch (error) {
       console.error("Error adding API key:", error);
