@@ -17,6 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Form } from "@/components/ui/form";
+import { UpgradePrompt } from "@/components/upgrade-prompt";
 
 const steps = [
   { id: 1, title: "Personal Info", component: PersonalInfoStep },
@@ -83,6 +84,15 @@ export default function CreateCVPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [existingCvId, setExistingCvId] = useState<string | null>(null);
+  const [upgradePromptOpen, setUpgradePromptOpen] = useState(false);
+  const [limitInfo, setLimitInfo] = useState<{
+    feature: string;
+    featureName: string;
+    currentPlan: string;
+    requiredPlan: 'pro' | 'premium';
+    limitType: 'count' | 'access';
+    usage?: { current: number; limit: number };
+  } | null>(null);
   
   const form = useForm<z.infer<typeof insertCvSchema>>({
     resolver: zodResolver(insertCvSchema),
@@ -169,8 +179,32 @@ export default function CreateCVPage() {
       setExistingCvId(savedCv.id);
       setLocation('/preview');
     },
-    onError: (error) => {
+    onError: async (error: any) => {
       console.error("Error creating CV:", error);
+      
+      // Check if this is a limit error (403 with structured response)
+      if (error.response && error.response.status === 403) {
+        try {
+          const errorData = await error.response.json();
+          if (errorData.error === 'limit') {
+            // Show upgrade prompt with limit info
+            setLimitInfo({
+              feature: errorData.feature || 'cvGenerations',
+              featureName: errorData.featureName || 'CV Generation',
+              currentPlan: errorData.currentPlan,
+              requiredPlan: errorData.requiredPlan,
+              limitType: errorData.limitType || 'count',
+              usage: errorData.usage,
+            });
+            setUpgradePromptOpen(true);
+            return;
+          }
+        } catch (e) {
+          // Fall through to generic error
+        }
+      }
+      
+      // Generic error handling
       toast({
         title: "Error",
         description: "Failed to save your CV. Please try again.",
@@ -277,6 +311,20 @@ export default function CreateCVPage() {
           </Form>
         </Card>
       </div>
+      
+      {/* Upgrade Prompt Modal */}
+      {limitInfo && (
+        <UpgradePrompt
+          isOpen={upgradePromptOpen}
+          onClose={() => setUpgradePromptOpen(false)}
+          feature={limitInfo.featureName}
+          currentPlan={limitInfo.currentPlan}
+          requiredPlan={limitInfo.requiredPlan}
+          limitType={limitInfo.limitType}
+          limitReached={limitInfo.usage?.current}
+          limitMax={limitInfo.usage?.limit}
+        />
+      )}
     </div>
   );
 }

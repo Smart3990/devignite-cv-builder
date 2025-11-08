@@ -61,6 +61,15 @@ export interface IStorage {
   incrementUsage(userId: string, feature: string): Promise<void>;
   getUsageCount(userId: string, feature: string): Promise<number>;
   resetUsageForUser(userId: string): Promise<void>;
+  
+  // Plan Status (for upgrade prompts)
+  getUserPlanStatus(userId: string): Promise<{
+    planId: string;
+    planName: string;
+    limits: Record<string, number>;
+    usage: Record<string, number>;
+    capabilities: string[];
+  }>;
 }
 
 export class DbStorage implements IStorage {
@@ -404,6 +413,68 @@ export class DbStorage implements IStorage {
   
   async resetUsageForUser(userId: string): Promise<void> {
     await db.delete(usageCounters).where(eq(usageCounters.userId, userId));
+  }
+  
+  async getUserPlanStatus(userId: string): Promise<{
+    planId: string;
+    planName: string;
+    limits: Record<string, number>;
+    usage: Record<string, number>;
+    capabilities: string[];
+  }> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    
+    const planId = user.currentPlan;
+    
+    // Use imported configs instead of re-reading files
+    const pricingConfig = (await import('../config/pricing.json')).default;
+    const featuresConfig = (await import('../config/features.json')).default;
+    
+    const planConfig = pricingConfig.plans.find((p: any) => p.id === planId);
+    if (!planConfig) {
+      throw new Error("Plan not found");
+    }
+    
+    // Get current month's usage for all features
+    const now = new Date();
+    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    
+    const userUsage = await db
+      .select()
+      .from(usageCounters)
+      .where(
+        and(
+          eq(usageCounters.userId, userId),
+          gte(usageCounters.periodStart, periodStart),
+          lte(usageCounters.periodEnd, periodEnd)
+        )
+      );
+    
+    // Convert usage to Record<string, number>
+    const usage: Record<string, number> = {};
+    userUsage.forEach(u => {
+      usage[u.feature] = u.count;
+    });
+    
+    // Get capabilities for this plan
+    const capabilities: string[] = [];
+    Object.entries(featuresData.features).forEach(([feature, config]: [string, any]) => {
+      if (config.availableOn.includes(planId) || config.availableOn.includes("all")) {
+        capabilities.push(feature);
+      }
+    });
+    
+    return {
+      planId,
+      planName: planConfig.name,
+      limits: planConfig.limits,
+      usage,
+      capabilities,
+    };
   }
 }
 
@@ -768,6 +839,58 @@ export class MemStorage implements IStorage {
     const keysToDelete = Array.from(this.usageCounters.keys())
       .filter(key => key.startsWith(`${userId}:`));
     keysToDelete.forEach(key => this.usageCounters.delete(key));
+  }
+  
+  async getUserPlanStatus(userId: string): Promise<{
+    planId: string;
+    planName: string;
+    limits: Record<string, number>;
+    usage: Record<string, number>;
+    capabilities: string[];
+  }> {
+    const user = this.users.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    
+    const planId = user.currentPlan;
+    
+    // Use imported configs instead of re-reading files
+    const pricingConfig = (await import('../config/pricing.json')).default;
+    const featuresConfig = (await import('../config/features.json')).default;
+    
+    const planConfig = pricingConfig.plans.find((p: any) => p.id === planId);
+    if (!planConfig) {
+      throw new Error("Plan not found");
+    }
+    
+    // Get current month's usage for all features
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
+    
+    const usage: Record<string, number> = {};
+    Array.from(this.usageCounters.entries()).forEach(([key, counter]) => {
+      if (key.startsWith(`${userId}:`) && key.endsWith(currentMonth)) {
+        const feature = key.split(':')[1];
+        usage[feature] = counter.count;
+      }
+    });
+    
+    // Get capabilities for this plan
+    const capabilities: string[] = [];
+    Object.entries(featuresConfig.features).forEach(([feature, config]: [string, any]) => {
+      if (config.availableOn.includes(planId) || config.availableOn.includes("all")) {
+        capabilities.push(feature);
+      }
+    });
+    
+    return {
+      planId,
+      planName: planConfig.name,
+      limits: planConfig.limits,
+      usage,
+      capabilities,
+    };
   }
 }
 

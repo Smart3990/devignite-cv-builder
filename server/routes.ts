@@ -104,6 +104,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Plan Status endpoint - Returns user's plan info, limits, usage, and capabilities
+  app.get('/api/user/plan-status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getUserId(req);
+      const planStatus = await storage.getUserPlanStatus(userId);
+      res.json(planStatus);
+    } catch (error) {
+      console.error("Error fetching plan status:", error);
+      res.status(500).json({ message: "Failed to fetch plan status" });
+    }
+  });
+
   // File upload endpoint for profile photos (requires authentication)
   app.post('/api/upload/profile-photo', isAuthenticated, upload.single('photo'), (req, res) => {
     try {
@@ -167,11 +179,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limitCheck = await hasReachedLimit(userId, 'cvGenerations');
       if (limitCheck.reached) {
         return res.status(403).json({
-          error: "CV generation limit reached",
-          message: `You've used ${limitCheck.current} of ${limitCheck.limit} CV generations this month. Upgrade your plan for more.`,
-          current: limitCheck.current,
-          limit: limitCheck.limit,
-          upgradeUrl: '/pricing'
+          error: 'limit',
+          limitType: 'count',
+          feature: limitCheck.feature,
+          featureName: limitCheck.featureName,
+          currentPlan: limitCheck.currentPlan,
+          requiredPlan: limitCheck.requiredPlan,
+          usage: {
+            current: limitCheck.current,
+            limit: limitCheck.limit
+          },
+          message: `You've used ${limitCheck.current} of ${limitCheck.limit} CV generations this month. Upgrade your plan for more.`
         });
       }
       
@@ -192,11 +210,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const user = await storage.getUser(userId);
           if (!user || user.currentPlan !== 'premium') {
             return res.status(403).json({ 
-              error: "Premium template requires Premium plan",
-              templateName: template.name,
+              error: 'limit',
+              limitType: 'access',
+              feature: 'premiumTemplate',
+              featureName: `Premium Template (${template.name})`,
               currentPlan: user?.currentPlan || 'basic',
               requiredPlan: 'premium',
-              upgradeUrl: '/pricing'
+              message: `The ${template.name} template requires Premium plan`
             });
           }
         }
@@ -264,11 +284,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const user = await storage.getUser(userId);
           if (!user || user.currentPlan !== 'premium') {
             return res.status(403).json({ 
-              error: "Premium template requires Premium plan",
-              templateName: template.name,
+              error: 'limit',
+              limitType: 'access',
+              feature: 'premiumTemplate',
+              featureName: `Premium Template (${template.name})`,
               currentPlan: user?.currentPlan || 'basic',
               requiredPlan: 'premium',
-              upgradeUrl: '/pricing'
+              message: `The ${template.name} template requires Premium plan`
             });
           }
         }
@@ -299,7 +321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI-powered CV optimization endpoints - Require Basic plan (1 AI run included)
-  app.post("/api/ai/optimize-cv", isAuthenticated, requirePlan('basic'), async (req: any, res) => {
+  app.post("/api/ai/optimize-cv", isAuthenticated, requirePlan('basic', 'AI Optimization'), async (req: any, res) => {
     try {
       const userId = getUserId(req);
       const cvData = req.body;
@@ -308,11 +330,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limitCheck = await hasReachedLimit(userId, 'aiRuns');
       if (limitCheck.reached) {
         return res.status(403).json({
-          error: "AI usage limit reached",
-          message: `You've used ${limitCheck.current} of ${limitCheck.limit} AI runs this month. Upgrade to Pro or Premium for more.`,
-          current: limitCheck.current,
-          limit: limitCheck.limit,
-          upgradeUrl: '/pricing'
+          error: 'limit',
+          limitType: 'count',
+          feature: limitCheck.feature,
+          featureName: limitCheck.featureName,
+          currentPlan: limitCheck.currentPlan,
+          requiredPlan: limitCheck.requiredPlan,
+          usage: {
+            current: limitCheck.current,
+            limit: limitCheck.limit
+          },
+          message: `You've used ${limitCheck.current} of ${limitCheck.limit} AI runs this month. Upgrade to Pro or Premium for more.`
         });
       }
       
@@ -329,7 +357,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/generate-cover-letter", isAuthenticated, requirePlan('basic'), async (req: any, res) => {
+  app.post("/api/ai/generate-cover-letter", isAuthenticated, requirePlan('basic', 'Cover Letter Generation'), async (req: any, res) => {
     try {
       const userId = getUserId(req);
       const { cv, jobTitle, companyName, jobDescription } = req.body;
@@ -342,11 +370,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const coverLetterLimit = await hasReachedLimit(userId, 'coverLetterGenerations');
       if (coverLetterLimit.reached) {
         return res.status(403).json({
-          error: "Cover letter generation limit reached",
-          message: `You've used ${coverLetterLimit.current} of ${coverLetterLimit.limit} cover letter generations this month. Upgrade your plan for more.`,
-          current: coverLetterLimit.current,
-          limit: coverLetterLimit.limit,
-          upgradeUrl: '/pricing'
+          error: 'limit',
+          limitType: 'count',
+          feature: coverLetterLimit.feature,
+          featureName: coverLetterLimit.featureName,
+          currentPlan: coverLetterLimit.currentPlan,
+          requiredPlan: coverLetterLimit.requiredPlan,
+          usage: {
+            current: coverLetterLimit.current,
+            limit: coverLetterLimit.limit
+          },
+          message: `You've used ${coverLetterLimit.current} of ${coverLetterLimit.limit} cover letter generations this month. Upgrade your plan for more.`
         });
       }
       
@@ -354,11 +388,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const aiRunsLimit = await hasReachedLimit(userId, 'aiRuns');
       if (aiRunsLimit.reached) {
         return res.status(403).json({
-          error: "AI usage limit reached",
-          message: `You've used ${aiRunsLimit.current} of ${aiRunsLimit.limit} AI runs this month. Upgrade to Pro or Premium for more.`,
-          current: aiRunsLimit.current,
-          limit: aiRunsLimit.limit,
-          upgradeUrl: '/pricing'
+          error: 'limit',
+          limitType: 'count',
+          feature: aiRunsLimit.feature,
+          featureName: aiRunsLimit.featureName,
+          currentPlan: aiRunsLimit.currentPlan,
+          requiredPlan: aiRunsLimit.requiredPlan,
+          usage: {
+            current: aiRunsLimit.current,
+            limit: aiRunsLimit.limit
+          },
+          message: `You've used ${aiRunsLimit.current} of ${aiRunsLimit.limit} AI runs this month. Upgrade to Pro or Premium for more.`
         });
       }
 
@@ -377,7 +417,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate cover letter PDF - Require Basic plan
-  app.post("/api/ai/cover-letter-pdf", isAuthenticated, requirePlan('basic'), async (req, res) => {
+  app.post("/api/ai/cover-letter-pdf", isAuthenticated, requirePlan('basic', 'Cover Letter PDF Download'), async (req, res) => {
     try {
       const coverLetterData = req.body;
       
@@ -396,7 +436,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/optimize-linkedin", isAuthenticated, requirePlan('premium'), async (req: any, res) => {
+  app.post("/api/ai/optimize-linkedin", isAuthenticated, requirePlan('premium', 'LinkedIn Export'), async (req: any, res) => {
     try {
       const userId = getUserId(req);
       const cvData = req.body;
@@ -405,11 +445,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limitCheck = await hasReachedLimit(userId, 'aiRuns');
       if (limitCheck.reached) {
         return res.status(403).json({
-          error: "AI usage limit reached",
-          message: `You've used ${limitCheck.current} of ${limitCheck.limit} AI runs this month.`,
-          current: limitCheck.current,
-          limit: limitCheck.limit,
-          upgradeUrl: '/pricing'
+          error: 'limit',
+          limitType: 'count',
+          feature: limitCheck.feature,
+          featureName: limitCheck.featureName,
+          currentPlan: limitCheck.currentPlan,
+          requiredPlan: limitCheck.requiredPlan,
+          usage: {
+            current: limitCheck.current,
+            limit: limitCheck.limit
+          },
+          message: `You've used ${limitCheck.current} of ${limitCheck.limit} AI runs this month.`
         });
       }
       
@@ -427,7 +473,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate LinkedIn profile PDF - Premium only
-  app.post("/api/ai/linkedin-pdf", isAuthenticated, requirePlan('premium'), async (req, res) => {
+  app.post("/api/ai/linkedin-pdf", isAuthenticated, requirePlan('premium', 'LinkedIn PDF Download'), async (req, res) => {
     try {
       const linkedInData = req.body;
       
@@ -446,7 +492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/analyze-ats", isAuthenticated, requirePlan('pro'), async (req: any, res) => {
+  app.post("/api/ai/analyze-ats", isAuthenticated, requirePlan('pro', 'ATS Analysis'), async (req: any, res) => {
     try {
       const userId = getUserId(req);
       const cvData = req.body;
@@ -455,11 +501,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limitCheck = await hasReachedLimit(userId, 'aiRuns');
       if (limitCheck.reached) {
         return res.status(403).json({
-          error: "AI usage limit reached",
-          message: `You've used ${limitCheck.current} of ${limitCheck.limit} AI runs this month. Upgrade to Premium for unlimited AI.`,
-          current: limitCheck.current,
-          limit: limitCheck.limit,
-          upgradeUrl: '/pricing'
+          error: 'limit',
+          limitType: 'count',
+          feature: limitCheck.feature,
+          featureName: limitCheck.featureName,
+          currentPlan: limitCheck.currentPlan,
+          requiredPlan: limitCheck.requiredPlan,
+          usage: {
+            current: limitCheck.current,
+            limit: limitCheck.limit
+          },
+          message: `You've used ${limitCheck.current} of ${limitCheck.limit} AI runs this month. Upgrade to Premium for unlimited AI.`
         });
       }
       

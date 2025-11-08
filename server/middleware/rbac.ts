@@ -47,7 +47,7 @@ export async function requireAdmin(req: AuthenticatedRequest, res: Response, nex
 /**
  * Middleware to check if user has a specific plan or higher
  */
-export function requirePlan(minPlan: 'basic' | 'pro' | 'premium') {
+export function requirePlan(minPlan: 'basic' | 'pro' | 'premium', featureName?: string) {
   return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       const userId = getUserId(req);
@@ -65,11 +65,16 @@ export function requirePlan(minPlan: 'basic' | 'pro' | 'premium') {
       const requiredPlanLevel = planHierarchy[minPlan];
 
       if (userPlanLevel < requiredPlanLevel) {
+        const displayName = featureName || 'Premium Feature';
         return res.status(403).json({
-          error: `This feature requires ${minPlan} plan or higher`,
+          error: 'limit',
+          errorType: 'access',
+          limitType: 'access',
+          feature: featureName || 'premiumFeature',
+          featureName: displayName,
           currentPlan: user.currentPlan,
           requiredPlan: minPlan,
-          upgradeUrl: '/pricing'
+          message: `${displayName} requires ${minPlan} plan or higher`
         });
       }
 
@@ -104,36 +109,107 @@ export async function hasFeatureAccess(userId: string, feature: string): Promise
 }
 
 /**
+ * Feature display names for error messages
+ */
+const FEATURE_NAMES: Record<string, string> = {
+  cvGenerations: 'CV Generation',
+  coverLetterGenerations: 'Cover Letter Generation',
+  aiRuns: 'AI Optimization'
+};
+
+/**
+ * Find the minimum plan that has access to a feature
+ */
+function getRequiredPlanForFeature(feature: string): 'pro' | 'premium' | null {
+  const plans = pricingConfig.plans;
+  const basicLimit = plans.basic.limits[feature] || 0;
+  const proLimit = plans.pro.limits[feature] || 0;
+  const premiumLimit = plans.premium.limits[feature] || 0;
+  
+  // If basic has limit but pro has higher, Pro is minimum required
+  if (basicLimit < proLimit) {
+    // But if pro still has limited access and premium has unlimited/much higher, recommend premium
+    if (proLimit !== -1 && premiumLimit === -1) {
+      return 'premium';
+    }
+    return 'pro';
+  }
+  
+  // If basic and pro have same limit but premium is higher, premium is required
+  if (basicLimit === proLimit && premiumLimit > proLimit) {
+    return 'premium';
+  }
+  
+  return 'pro'; // Default to pro for upgrade suggestions
+}
+
+/**
  * Check if user has reached their plan limit for a feature
  */
 export async function hasReachedLimit(
   userId: string, 
   feature: 'cvGenerations' | 'coverLetterGenerations' | 'aiRuns'
-): Promise<{ reached: boolean; current: number; limit: number }> {
+): Promise<{ 
+  reached: boolean; 
+  current: number; 
+  limit: number;
+  feature: string;
+  featureName: string;
+  currentPlan: string;
+  requiredPlan?: 'pro' | 'premium';
+}> {
   const user = await storage.getUser(userId);
   if (!user) {
-    return { reached: true, current: 0, limit: 0 };
+    return { 
+      reached: true, 
+      current: 0, 
+      limit: 0,
+      feature,
+      featureName: FEATURE_NAMES[feature] || feature,
+      currentPlan: 'basic',
+      requiredPlan: 'pro'
+    };
   }
 
   const plan = pricingConfig.plans[user.currentPlan as keyof typeof pricingConfig.plans];
   if (!plan) {
-    return { reached: true, current: 0, limit: 0 };
+    return { 
+      reached: true, 
+      current: 0, 
+      limit: 0,
+      feature,
+      featureName: FEATURE_NAMES[feature] || feature,
+      currentPlan: user.currentPlan,
+      requiredPlan: 'pro'
+    };
   }
 
   const limit = plan.limits[feature];
   
   // -1 means unlimited
   if (limit === -1) {
-    return { reached: false, current: 0, limit: -1 };
+    return { 
+      reached: false, 
+      current: 0, 
+      limit: -1,
+      feature,
+      featureName: FEATURE_NAMES[feature] || feature,
+      currentPlan: user.currentPlan
+    };
   }
 
   // Get current usage count for this month from storage
   const current = await storage.getUsageCount(userId, feature);
+  const reached = current >= limit;
 
   return {
-    reached: current >= limit,
+    reached,
     current,
-    limit
+    limit,
+    feature,
+    featureName: FEATURE_NAMES[feature] || feature,
+    currentPlan: user.currentPlan,
+    requiredPlan: reached ? getRequiredPlanForFeature(feature) || undefined : undefined
   };
 }
 
