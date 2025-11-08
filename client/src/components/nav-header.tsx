@@ -23,6 +23,9 @@ export function NavHeader() {
               <Link href="/create" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-create">
                 Create CV
               </Link>
+              <Link href="/cover-letter" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-cover-letter">
+                Cover Letter
+              </Link>
               <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-pricing">
                 Pricing
               </Link>

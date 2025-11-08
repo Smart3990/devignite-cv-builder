@@ -14,6 +14,7 @@ import DashboardPage from "@/pages/dashboard";
 import PricingPage from "@/pages/pricing";
 import PaymentCallbackPage from "@/pages/payment-callback";
 import OrderSuccessPage from "@/pages/order-success";
+import CoverLetterPage from "@/pages/cover-letter";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -55,6 +56,9 @@ function Router() {
       <Route path="/" component={LandingPage} />
       <Route path="/create">
         <ProtectedRoute component={CreateCVPage} />
+      </Route>
+      <Route path="/cover-letter">
+        <ProtectedRoute component={CoverLetterPage} />
       </Route>
       <Route path="/preview">
         <ProtectedRoute component={CVPreviewPage} />
