@@ -16,6 +16,7 @@ import PricingPage from "@/pages/pricing";
 import PaymentCallbackPage from "@/pages/payment-callback";
 import OrderSuccessPage from "@/pages/order-success";
 import CoverLetterPage from "@/pages/cover-letter";
+import UpgradePage from "@/pages/upgrade";
 import AdminLayout from "@/pages/admin/admin-layout";
 import SalesOverviewPage from "@/pages/admin/sales-overview";
 import UserManagementPage from "@/pages/admin/user-management";
@@ -131,6 +132,9 @@ function Router() {
       </Route>
       <Route path="/dashboard">
         <ProtectedRoute component={DashboardPage} />
+      </Route>
+      <Route path="/upgrade">
+        <ProtectedRoute component={UpgradePage} />
       </Route>
       <Route path="/payment/callback">
         <ProtectedRoute component={PaymentCallbackPage} />
