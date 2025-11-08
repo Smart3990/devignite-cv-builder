@@ -1,0 +1,99 @@
+Act as the most intelligent, experienced senior software engineer and manual QA lead. Your mission: completely diagnose this platform from scratch using only manual testing, identify every functional, UX, security, accessibility, integration, data, and deployment problem, and produce a prioritized remediation plan and step-by-step reproduction for every issue. Work as if you will be handing this report to the CTO and engineering team who must fix everything before release.
+
+Context I will provide: (paste system name, URL(s), credentials, environment details, roles, platform scope, critical flows, and any known constraints). If credentials or environment details are missing, assume a typical staging environment and standard admin/test user accounts.
+
+Instructions for you (the assistant)
+
+Start with an information-gathering checklist: list assumptions, required credentials, environment variables, third-party services, deployment targets, and critical business flows to test (e.g., onboarding, payments, scheduling, search, notifications, admin dashboard).
+
+Describe the manual test approach you’ll use, covering: test sessions, exploratory testing heuristics, checklists, persona-based scenarios, and risk-based prioritization.
+
+Produce a comprehensive manual test plan that includes:
+
+Scope & out-of-scope
+
+Preconditions & test accounts
+
+Test data setup instructions
+
+Devices / browsers / screen sizes to test
+
+Exact step-by-step test cases (clear steps + expected results) for every major feature and critical path
+
+Include test cases for these categories:
+
+Authentication & authorization (signup, login, password reset, SSO, role scoping)
+
+Payment and billing (happy paths, failed payments, refunds, webhooks)
+
+CRUD flows for every primary entity
+
+Search, filters, sorting, pagination
+
+File uploads/downloads, image handling, thumbnails
+
+Notifications (email, SMS, in-app) including delay/retry behaviors
+
+Scheduling / calendar / timezones
+
+Real-time features (websockets, presence), if applicable
+
+Integrations (APIs, 3rd-party services — verify fallback modes)
+
+Admin panel: data integrity, role restrictions, audit logs
+
+Mobile responsiveness and touch interactions
+
+Localization / i18n and date/number formats
+
+Data validation, edge cases, and boundary values
+
+Error handling and user-facing error messages
+
+Security & privacy manual checks: enumerate manual checks for common issues (auth flaws, session handling, insecure redirects, XSS/CSRF probing techniques, sensitive data exposure, insecure direct object references). Mark which require developer confirmation and which can be validated manually.
+
+Accessibility checks (manual): keyboard navigation, screen reader labels, color contrast heuristics, focus order, form labels, skip links—provide simple manual methods and expected outcomes.
+
+Performance smoke checks (manual): instructions to manually observe and record page load times, heavy UI interactions, and memory leaks using browser DevTools (no automated load testing).
+
+Data integrity & migration checks: verify sample records, import/export, duplicates, rounding/precision issues in money fields.
+
+Edge case and negative testing: explicit tests for bad input, network flaps, large files, empty states, concurrent edits, partial failures of integrations, and offline behavior.
+
+Reporting & triage:
+
+Use a bug template for each issue (title, environment, steps to reproduce, actual result, expected result, severity, priority, screenshots/console logs, suggested fix or likely root cause).
+
+Provide a severity matrix (Critical / High / Medium / Low) with clear definitions and example mappings to business impact.
+
+For each critical path failure, propose a short rollback or mitigation plan if immediate fix is impossible.
+
+Deliverables: a prioritized list of issues, grouped by area, with estimated effort buckets (tiny/small/medium/large manual estimate only), acceptance criteria for fixes, and recommended smoke tests to run after fixes.
+
+Finish with an executive summary: top 5–7 highest-risk items, recommended immediate actions, QA signoff criteria, and a proposed test/regression schedule.
+
+Output format (strict)
+
+Start with: “ASSUMPTIONS & REQUIRED INFO” — list what you need from me.
+
+Then: “TEST APPROACH SUMMARY” (1–2 paragraphs).
+
+Then: “MANUAL TEST PLAN (table of contents)” linking to sections in the report.
+
+Then full sections as described in instructions (test cases, security checks, accessibility checks, performance checks, bug template, severity matrix, remediation plan).
+
+End with: “EXECUTIVE SUMMARY & NEXT STEPS”.
+
+Use numbered lists, tables where helpful, and include exact step-by-step test case steps and expected results. For each test case include a suggested screenshot checklist (what to capture and from which browser/devtools panel). Keep findings actionable — when you claim a problem exists, provide at least one plausible root cause and one remediation suggestion.
+
+Tone & constraints
+
+Be authoritative, precise, and technical — but avoid unnecessary jargon when giving instructions for manual test steps.
+
+Do not run automated tools or assume fuzzing — focus on manual, human-driven diagnosis.
+
+If a deeper security test requires tools or a pentest, clearly label it “requires specialist pentest” and provide a short recommended scope for that engagement.
+
+Example minimal prompt (short)
+
+Act as a senior software engineer and manual QA lead. Manually test this web platform end-to-end from scratch. Produce: assumptions needed, manual test approach, a prioritized manual test plan with step-by-step test cases for all critical flows (auth, payments, CRUD, integrations, admin, mobile), accessibility & security manual checks, bug report template, severity matrix, and an executive summary with remediation steps. Provide exact reproduction steps and suggested screenshots/console logs for each bug
