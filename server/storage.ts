@@ -26,6 +26,7 @@ export interface IStorage {
   getOrderByPaystackReference(reference: string): Promise<Order | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: string, order: Partial<InsertOrder>): Promise<Order | undefined>;
+  decrementOrderEdits(orderId: string): Promise<void>;
 }
 
 export class DbStorage implements IStorage {
@@ -182,6 +183,16 @@ export class DbStorage implements IStorage {
       .where(eq(orders.id, id))
       .returning();
     return result[0];
+  }
+
+  async decrementOrderEdits(orderId: string): Promise<void> {
+    const order = await this.getOrder(orderId);
+    if (order && order.editsRemaining > 0) {
+      await db
+        .update(orders)
+        .set({ editsRemaining: order.editsRemaining - 1, updatedAt: new Date() })
+        .where(eq(orders.id, orderId));
+    }
   }
 }
 
@@ -341,6 +352,15 @@ export class MemStorage implements IStorage {
     const updated = { ...existing, ...order, updatedAt: new Date() };
     this.orders.set(id, updated);
     return updated;
+  }
+
+  async decrementOrderEdits(orderId: string): Promise<void> {
+    const order = this.orders.get(orderId);
+    if (order && order.editsRemaining > 0) {
+      order.editsRemaining -= 1;
+      order.updatedAt = new Date();
+      this.orders.set(orderId, order);
+    }
   }
 }
 

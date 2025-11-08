@@ -273,3 +273,52 @@ export const PRICING_TIERS = {
 } as const;
 
 export type PricingTier = keyof typeof PRICING_TIERS;
+
+// PDF Jobs table - tracks PDF generation jobs
+export const pdfJobs = pgTable("pdf_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }),
+  cvId: varchar("cv_id").references(() => cvs.id, { onDelete: 'cascade' }),
+  orderId: varchar("order_id").references(() => orders.id, { onDelete: 'cascade' }),
+  
+  status: text("status").notNull().default("queued"), // queued, processing, done, error
+  pages: integer("pages"),
+  sizeBytes: integer("size_bytes"),
+  url: text("url"),
+  template: text("template"),
+  error: text("error"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertPdfJobSchema = createInsertSchema(pdfJobs).omit({ 
+  id: true, 
+  createdAt: true, 
+  updatedAt: true 
+});
+
+export type InsertPdfJob = z.infer<typeof insertPdfJobSchema>;
+export type PdfJob = typeof pdfJobs.$inferSelect;
+
+// Usage Counters table - tracks feature usage for plan enforcement
+export const usageCounters = pgTable("usage_counters", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  feature: text("feature").notNull(), // ai_run, pdf_generation, etc.
+  periodStart: timestamp("period_start").notNull(),
+  periodEnd: timestamp("period_end").notNull(),
+  count: integer("count").default(0).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertUsageCounterSchema = createInsertSchema(usageCounters).omit({ 
+  id: true, 
+  createdAt: true, 
+  updatedAt: true 
+});
+
+export type InsertUsageCounter = z.infer<typeof insertUsageCounterSchema>;
+export type UsageCounter = typeof usageCounters.$inferSelect;
