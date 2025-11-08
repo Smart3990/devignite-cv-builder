@@ -12,10 +12,13 @@ export interface IStorage {
   // User operations (Replit Auth required)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  getAllUsers(): Promise<User[]>;
+  updateUserPlan(userId: string, plan: string): Promise<void>;
   
   // CV operations
   getCv(id: string): Promise<Cv | undefined>;
   getCvsByUserId(userId: string): Promise<Cv[]>;
+  getAllCVs(): Promise<Cv[]>;
   createCv(cv: InsertCv): Promise<Cv>;
   updateCv(id: string, cv: Partial<InsertCv>): Promise<Cv | undefined>;
   deleteCv(id: string): Promise<boolean>;
@@ -28,6 +31,7 @@ export interface IStorage {
   // Order operations
   getOrder(id: string): Promise<Order | undefined>;
   getOrdersByUserId(userId: string): Promise<Order[]>;
+  getAllOrders(): Promise<Order[]>;
   getOrderByPaystackReference(reference: string): Promise<Order | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: string, order: Partial<InsertOrder>): Promise<Order | undefined>;
@@ -147,6 +151,17 @@ export class DbStorage implements IStorage {
     }
   }
 
+  async getAllUsers(): Promise<User[]> {
+    return db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async updateUserPlan(userId: string, plan: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ currentPlan: plan, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
   // CV operations
   async getCv(id: string): Promise<Cv | undefined> {
     const result = await db.select().from(cvs).where(eq(cvs.id, id));
@@ -155,6 +170,10 @@ export class DbStorage implements IStorage {
 
   async getCvsByUserId(userId: string): Promise<Cv[]> {
     return db.select().from(cvs).where(eq(cvs.userId, userId)).orderBy(desc(cvs.createdAt));
+  }
+
+  async getAllCVs(): Promise<Cv[]> {
+    return db.select().from(cvs).orderBy(desc(cvs.createdAt));
   }
 
   async createCv(cv: InsertCv): Promise<Cv> {
@@ -199,6 +218,10 @@ export class DbStorage implements IStorage {
 
   async getOrdersByUserId(userId: string): Promise<Order[]> {
     return db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt));
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    return db.select().from(orders).orderBy(desc(orders.createdAt));
   }
 
   async getOrderByPaystackReference(reference: string): Promise<Order | undefined> {
@@ -442,6 +465,19 @@ export class MemStorage implements IStorage {
     return this.users.get(id);
   }
 
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async updateUserPlan(userId: string, plan: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.currentPlan = plan;
+      user.updatedAt = new Date();
+      this.users.set(userId, user);
+    }
+  }
 
   // CV operations
   async getCv(id: string): Promise<Cv | undefined> {
@@ -451,6 +487,11 @@ export class MemStorage implements IStorage {
   async getCvsByUserId(userId: string): Promise<Cv[]> {
     return Array.from(this.cvs.values())
       .filter((cv) => cv.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getAllCVs(): Promise<Cv[]> {
+    return Array.from(this.cvs.values())
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
@@ -514,6 +555,11 @@ export class MemStorage implements IStorage {
   async getOrdersByUserId(userId: string): Promise<Order[]> {
     return Array.from(this.orders.values())
       .filter((order) => order.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    return Array.from(this.orders.values())
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 

@@ -886,6 +886,170 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin API endpoints - Require admin role
+  app.get("/api/admin/sales", isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const orders = await storage.getAllOrders();
+      const users = await storage.getAllUsers();
+      
+      const totalRevenue = orders
+        .filter(o => o.status === 'successful')
+        .reduce((sum, o) => sum + (o.amount || 0), 0);
+      
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthlyRevenue = orders
+        .filter(o => o.status === 'successful' && new Date(o.createdAt) >= monthStart)
+        .reduce((sum, o) => sum + (o.amount || 0), 0);
+      
+      const planDistribution = {
+        basic: users.filter(u => u.currentPlan === 'basic').length,
+        pro: users.filter(u => u.currentPlan === 'pro').length,
+        premium: users.filter(u => u.currentPlan === 'premium').length,
+      };
+      
+      res.json({
+        totalRevenue,
+        monthlyRevenue,
+        totalOrders: orders.filter(o => o.status === 'successful').length,
+        planDistribution,
+      });
+    } catch (error) {
+      console.error("Error fetching sales data:", error);
+      res.status(500).json({ error: "Failed to fetch sales data" });
+    }
+  });
+
+  app.get("/api/admin/users", isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  app.patch("/api/admin/users/:userId/plan", isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { plan } = req.body;
+      
+      if (!['basic', 'pro', 'premium'].includes(plan)) {
+        return res.status(400).json({ error: "Invalid plan" });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      await storage.updateUserPlan(userId, plan);
+      
+      res.json({ success: true, message: "Plan updated successfully" });
+    } catch (error) {
+      console.error("Error updating user plan:", error);
+      res.status(500).json({ error: "Failed to update plan" });
+    }
+  });
+
+  app.post("/api/admin/users/:userId/reset-usage", isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      await storage.resetUsageForUser(userId);
+      
+      res.json({ success: true, message: "Usage reset successfully" });
+    } catch (error) {
+      console.error("Error resetting usage:", error);
+      res.status(500).json({ error: "Failed to reset usage" });
+    }
+  });
+
+  app.get("/api/admin/analytics", isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const cvs = await storage.getAllCVs();
+      
+      // For now, mock cover letter and AI data since we don't have separate tracking yet
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      const cvGeneratedThisMonth = cvs.filter(cv => 
+        new Date(cv.createdAt) >= monthStart
+      ).length;
+      
+      res.json({
+        totalCVs: cvs.length,
+        totalCoverLetters: 0, // TODO: Add tracking
+        totalAIRuns: 0, // TODO: Add tracking
+        activeUsersToday: 0, // TODO: Add tracking
+        cvGeneratedThisMonth,
+        coverLettersThisMonth: 0, // TODO: Add tracking
+      });
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({ error: "Failed to fetch analytics" });
+    }
+  });
+
+  app.get("/api/admin/emails", isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      // TODO: Implement email logs tracking
+      // For now, return empty array
+      res.json([]);
+    } catch (error) {
+      console.error("Error fetching email logs:", error);
+      res.status(500).json({ error: "Failed to fetch email logs" });
+    }
+  });
+
+  app.get("/api/admin/api-keys", isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const apiKeys = await storage.getAllApiKeys();
+      res.json(apiKeys);
+    } catch (error) {
+      console.error("Error fetching API keys:", error);
+      res.status(500).json({ error: "Failed to fetch API keys" });
+    }
+  });
+
+  app.post("/api/admin/api-keys", isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const { service, key } = req.body;
+      
+      if (!service || !key) {
+        return res.status(400).json({ error: "Service and key are required" });
+      }
+      
+      const apiKey = await storage.upsertApiKey(service, key);
+      res.json(apiKey);
+    } catch (error) {
+      console.error("Error adding API key:", error);
+      res.status(500).json({ error: "Failed to add API key" });
+    }
+  });
+
+  app.delete("/api/admin/api-keys/:service", isAuthenticated, requireAdmin, async (req, res) => {
+    try {
+      const { service } = req.params;
+      const deleted = await storage.deleteApiKey(service);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: "API key not found" });
+      }
+      
+      res.json({ success: true, message: "API key deleted" });
+    } catch (error) {
+      console.error("Error deleting API key:", error);
+      res.status(500).json({ error: "Failed to delete API key" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
