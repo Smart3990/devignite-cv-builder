@@ -127,14 +127,8 @@ export async function hasReachedLimit(
     return { reached: false, current: 0, limit: -1 };
   }
 
-  // Get current usage count for this month
-  const now = new Date();
-  const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-  // For now, we'll use a simple counter (you can enhance this with actual tracking)
-  // This is a placeholder - you'd want to track actual usage in the database
-  const current = 0; // TODO: Implement actual usage tracking
+  // Get current usage count for this month from storage
+  const current = await storage.getUsageCount(userId, feature);
 
   return {
     reached: current >= limit,

@@ -1,11 +1,11 @@
 import { db } from "./db";
 import { 
-  users, cvs, orders, templates, coverLetters, emailLogs, apiKeys,
+  users, cvs, orders, templates, coverLetters, emailLogs, apiKeys, usageCounters,
   type User, type UpsertUser, type Cv, type InsertCv, type Order, type InsertOrder, 
   type Template, type InsertTemplate, type CoverLetter, type InsertCoverLetter,
-  type EmailLog, type InsertEmailLog, type ApiKey, type InsertApiKey
+  type EmailLog, type InsertEmailLog, type ApiKey, type InsertApiKey, type UsageCounter
 } from "@shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, gte, lte, sql as drizzleSql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -52,6 +52,11 @@ export interface IStorage {
   getAllApiKeys(): Promise<ApiKey[]>;
   upsertApiKey(apiKey: InsertApiKey): Promise<ApiKey>;
   deleteApiKey(service: string): Promise<boolean>;
+  
+  // Usage Tracking operations
+  incrementUsage(userId: string, feature: string): Promise<void>;
+  getUsageCount(userId: string, feature: string): Promise<number>;
+  resetUsageForUser(userId: string): Promise<void>;
 }
 
 export class DbStorage implements IStorage {
@@ -311,6 +316,72 @@ export class DbStorage implements IStorage {
     const result = await db.delete(apiKeys).where(eq(apiKeys.service, service)).returning();
     return result.length > 0;
   }
+  
+  // Usage Tracking operations
+  async incrementUsage(userId: string, feature: string): Promise<void> {
+    const now = new Date();
+    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    
+    // Try to find existing usage counter for this user/feature/period
+    const existing = await db
+      .select()
+      .from(usageCounters)
+      .where(
+        and(
+          eq(usageCounters.userId, userId),
+          eq(usageCounters.feature, feature),
+          gte(usageCounters.periodStart, periodStart),
+          lte(usageCounters.periodEnd, periodEnd)
+        )
+      )
+      .limit(1);
+    
+    if (existing.length > 0) {
+      // Increment existing counter
+      await db
+        .update(usageCounters)
+        .set({ 
+          count: drizzleSql`${usageCounters.count} + 1`,
+          updatedAt: now
+        })
+        .where(eq(usageCounters.id, existing[0].id));
+    } else {
+      // Create new counter
+      await db.insert(usageCounters).values({
+        userId,
+        feature,
+        periodStart,
+        periodEnd,
+        count: 1
+      });
+    }
+  }
+  
+  async getUsageCount(userId: string, feature: string): Promise<number> {
+    const now = new Date();
+    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    
+    const result = await db
+      .select()
+      .from(usageCounters)
+      .where(
+        and(
+          eq(usageCounters.userId, userId),
+          eq(usageCounters.feature, feature),
+          gte(usageCounters.periodStart, periodStart),
+          lte(usageCounters.periodEnd, periodEnd)
+        )
+      )
+      .limit(1);
+    
+    return result.length > 0 ? result[0].count : 0;
+  }
+  
+  async resetUsageForUser(userId: string): Promise<void> {
+    await db.delete(usageCounters).where(eq(usageCounters.userId, userId));
+  }
 }
 
 // In-memory storage for development/testing
@@ -319,12 +390,14 @@ export class MemStorage implements IStorage {
   private cvs: Map<string, Cv>;
   private templates: Map<string, Template>;
   private orders: Map<string, Order>;
+  private usageCounters: Map<string, UsageCounter>;
 
   constructor() {
     this.users = new Map();
     this.cvs = new Map();
     this.templates = new Map();
     this.orders = new Map();
+    this.usageCounters = new Map();
     this.seedTemplates();
   }
 
@@ -608,6 +681,47 @@ export class MemStorage implements IStorage {
 
   async deleteApiKey(service: string): Promise<boolean> {
     return this.apiKeys.delete(service);
+  }
+  
+  // Usage Tracking operations
+  async incrementUsage(userId: string, feature: string): Promise<void> {
+    const now = new Date();
+    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    
+    // Find existing counter key
+    const counterKey = `${userId}:${feature}:${now.getFullYear()}-${now.getMonth()}`;
+    const existing = this.usageCounters.get(counterKey);
+    
+    if (existing) {
+      existing.count += 1;
+      existing.updatedAt = now;
+    } else {
+      this.usageCounters.set(counterKey, {
+        id: randomUUID(),
+        userId,
+        feature,
+        periodStart,
+        periodEnd,
+        count: 1,
+        createdAt: now,
+        updatedAt: now
+      });
+    }
+  }
+  
+  async getUsageCount(userId: string, feature: string): Promise<number> {
+    const now = new Date();
+    const counterKey = `${userId}:${feature}:${now.getFullYear()}-${now.getMonth()}`;
+    const counter = this.usageCounters.get(counterKey);
+    return counter ? counter.count : 0;
+  }
+  
+  async resetUsageForUser(userId: string): Promise<void> {
+    // Remove all counters for this user
+    const keysToDelete = Array.from(this.usageCounters.keys())
+      .filter(key => key.startsWith(`${userId}:`));
+    keysToDelete.forEach(key => this.usageCounters.delete(key));
   }
 }
 

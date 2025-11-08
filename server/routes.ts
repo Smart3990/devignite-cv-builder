@@ -7,9 +7,11 @@ import { z } from "zod";
 // @ts-ignore - paystack doesn't have type definitions
 import paystack from "paystack";
 import { optimizeCVContent, generateCoverLetter, optimizeLinkedInProfile, analyzeCVForATS } from "./lib/ai-cv-optimizer";
+import { requireAdmin, requirePlan, hasFeatureAccess, hasReachedLimit } from "./middleware/rbac";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import pricingConfig from "../config/pricing.json";
 
 // Safely initialize Paystack client - gracefully handle missing key in development
 const paystackClient = process.env.PAYSTACK_SECRET_KEY 
@@ -161,18 +163,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('[POST /api/cvs] Received templateId:', validatedData.templateId);
       
+      // Check CV generation limit FIRST
+      const limitCheck = await hasReachedLimit(userId, 'cvGenerations');
+      if (limitCheck.reached) {
+        return res.status(403).json({
+          error: "CV generation limit reached",
+          message: `You've used ${limitCheck.current} of ${limitCheck.limit} CV generations this month. Upgrade your plan for more.`,
+          current: limitCheck.current,
+          limit: limitCheck.limit,
+          upgradeUrl: '/pricing'
+        });
+      }
+      
       // Convert empty string templateId to null for database compatibility
+      const templateId = validatedData.templateId && validatedData.templateId.trim() !== '' 
+        ? validatedData.templateId 
+        : null;
+      
+      // Check template access control
+      if (templateId) {
+        const template = await storage.getTemplate(templateId);
+        if (!template) {
+          return res.status(404).json({ error: "Template not found" });
+        }
+        
+        // If template is premium, verify user has premium plan
+        if (template.isPremium) {
+          const user = await storage.getUser(userId);
+          if (!user || user.currentPlan !== 'premium') {
+            return res.status(403).json({ 
+              error: "Premium template requires Premium plan",
+              templateName: template.name,
+              currentPlan: user?.currentPlan || 'basic',
+              requiredPlan: 'premium',
+              upgradeUrl: '/pricing'
+            });
+          }
+        }
+      }
+      
       const cvData = {
         ...validatedData,
         userId, // Link CV to authenticated user
-        templateId: validatedData.templateId && validatedData.templateId.trim() !== '' 
-          ? validatedData.templateId 
-          : null
+        templateId
       };
       
       console.log('[POST /api/cvs] Saving CV with templateId:', cvData.templateId);
       
       const cv = await storage.createCv(cvData);
+      
+      // Increment CV generation usage AFTER successful creation
+      await storage.incrementUsage(userId, 'cvGenerations');
       
       console.log('[POST /api/cvs] Returning CV with templateId:', cv.templateId);
       
@@ -199,15 +240,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/cvs/:id", isAuthenticated, async (req, res) => {
+  app.patch("/api/cvs/:id", isAuthenticated, async (req: any, res) => {
     try {
+      const userId = getUserId(req);
       const updateData = { ...req.body };
+      
       // Convert empty string templateId to null for database compatibility
       if (updateData.templateId !== undefined) {
         updateData.templateId = updateData.templateId && updateData.templateId.trim() !== '' 
           ? updateData.templateId 
           : null;
       }
+      
+      // Check template access control if template is being changed
+      if (updateData.templateId) {
+        const template = await storage.getTemplate(updateData.templateId);
+        if (!template) {
+          return res.status(404).json({ error: "Template not found" });
+        }
+        
+        // If template is premium, verify user has premium plan
+        if (template.isPremium) {
+          const user = await storage.getUser(userId);
+          if (!user || user.currentPlan !== 'premium') {
+            return res.status(403).json({ 
+              error: "Premium template requires Premium plan",
+              templateName: template.name,
+              currentPlan: user?.currentPlan || 'basic',
+              requiredPlan: 'premium',
+              upgradeUrl: '/pricing'
+            });
+          }
+        }
+      }
+      
       const cv = await storage.updateCv(req.params.id, updateData);
       if (!cv) {
         return res.status(404).json({ error: "CV not found" });
@@ -232,11 +298,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI-powered CV optimization endpoints - Require authentication
-  app.post("/api/ai/optimize-cv", isAuthenticated, async (req, res) => {
+  // AI-powered CV optimization endpoints - Require Basic plan (1 AI run included)
+  app.post("/api/ai/optimize-cv", isAuthenticated, requirePlan('basic'), async (req: any, res) => {
     try {
+      const userId = getUserId(req);
       const cvData = req.body;
+      
+      // Check AI runs limit FIRST
+      const limitCheck = await hasReachedLimit(userId, 'aiRuns');
+      if (limitCheck.reached) {
+        return res.status(403).json({
+          error: "AI usage limit reached",
+          message: `You've used ${limitCheck.current} of ${limitCheck.limit} AI runs this month. Upgrade to Pro or Premium for more.`,
+          current: limitCheck.current,
+          limit: limitCheck.limit,
+          upgradeUrl: '/pricing'
+        });
+      }
+      
       const optimizedCV = await optimizeCVContent(cvData);
+      
+      // Increment AI usage AFTER successful operation
+      await storage.incrementUsage(userId, 'aiRuns');
+      
       res.json(optimizedCV);
     } catch (error) {
       console.error("Error optimizing CV:", error);
@@ -245,15 +329,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/generate-cover-letter", isAuthenticated, async (req, res) => {
+  app.post("/api/ai/generate-cover-letter", isAuthenticated, requirePlan('basic'), async (req: any, res) => {
     try {
+      const userId = getUserId(req);
       const { cv, jobTitle, companyName, jobDescription } = req.body;
       
       if (!cv || !jobTitle || !companyName) {
         return res.status(400).json({ error: "Missing required fields: cv, jobTitle, companyName" });
       }
 
+      // Check cover letter limit FIRST
+      const coverLetterLimit = await hasReachedLimit(userId, 'coverLetterGenerations');
+      if (coverLetterLimit.reached) {
+        return res.status(403).json({
+          error: "Cover letter generation limit reached",
+          message: `You've used ${coverLetterLimit.current} of ${coverLetterLimit.limit} cover letter generations this month. Upgrade your plan for more.`,
+          current: coverLetterLimit.current,
+          limit: coverLetterLimit.limit,
+          upgradeUrl: '/pricing'
+        });
+      }
+      
+      // Check AI runs limit
+      const aiRunsLimit = await hasReachedLimit(userId, 'aiRuns');
+      if (aiRunsLimit.reached) {
+        return res.status(403).json({
+          error: "AI usage limit reached",
+          message: `You've used ${aiRunsLimit.current} of ${aiRunsLimit.limit} AI runs this month. Upgrade to Pro or Premium for more.`,
+          current: aiRunsLimit.current,
+          limit: aiRunsLimit.limit,
+          upgradeUrl: '/pricing'
+        });
+      }
+
       const coverLetterData = await generateCoverLetter(cv, jobTitle, companyName, jobDescription);
+      
+      // Increment usage AFTER successful generation
+      await storage.incrementUsage(userId, 'coverLetterGenerations');
+      await storage.incrementUsage(userId, 'aiRuns');
+      
       res.json(coverLetterData);
     } catch (error) {
       console.error("Error generating cover letter:", error);
@@ -262,8 +376,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Generate cover letter PDF
-  app.post("/api/ai/cover-letter-pdf", isAuthenticated, async (req, res) => {
+  // Generate cover letter PDF - Require Basic plan
+  app.post("/api/ai/cover-letter-pdf", isAuthenticated, requirePlan('basic'), async (req, res) => {
     try {
       const coverLetterData = req.body;
       
@@ -282,10 +396,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/optimize-linkedin", isAuthenticated, async (req, res) => {
+  app.post("/api/ai/optimize-linkedin", isAuthenticated, requirePlan('premium'), async (req: any, res) => {
     try {
+      const userId = getUserId(req);
       const cvData = req.body;
+      
+      // Premium has unlimited AI, but check anyway for consistency
+      const limitCheck = await hasReachedLimit(userId, 'aiRuns');
+      if (limitCheck.reached) {
+        return res.status(403).json({
+          error: "AI usage limit reached",
+          message: `You've used ${limitCheck.current} of ${limitCheck.limit} AI runs this month.`,
+          current: limitCheck.current,
+          limit: limitCheck.limit,
+          upgradeUrl: '/pricing'
+        });
+      }
+      
       const linkedInProfile = await optimizeLinkedInProfile(cvData);
+      
+      // Increment AI usage AFTER successful operation
+      await storage.incrementUsage(userId, 'aiRuns');
+      
       res.json(linkedInProfile);
     } catch (error) {
       console.error("Error optimizing LinkedIn profile:", error);
@@ -294,8 +426,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Generate LinkedIn profile PDF
-  app.post("/api/ai/linkedin-pdf", isAuthenticated, async (req, res) => {
+  // Generate LinkedIn profile PDF - Premium only
+  app.post("/api/ai/linkedin-pdf", isAuthenticated, requirePlan('premium'), async (req, res) => {
     try {
       const linkedInData = req.body;
       
@@ -314,10 +446,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/analyze-ats", isAuthenticated, async (req, res) => {
+  app.post("/api/ai/analyze-ats", isAuthenticated, requirePlan('pro'), async (req: any, res) => {
     try {
+      const userId = getUserId(req);
       const cvData = req.body;
+      
+      // Check AI runs limit FIRST
+      const limitCheck = await hasReachedLimit(userId, 'aiRuns');
+      if (limitCheck.reached) {
+        return res.status(403).json({
+          error: "AI usage limit reached",
+          message: `You've used ${limitCheck.current} of ${limitCheck.limit} AI runs this month. Upgrade to Premium for unlimited AI.`,
+          current: limitCheck.current,
+          limit: limitCheck.limit,
+          upgradeUrl: '/pricing'
+        });
+      }
+      
       const analysis = await analyzeCVForATS(cvData);
+      
+      // Increment AI usage AFTER successful operation
+      await storage.incrementUsage(userId, 'aiRuns');
+      
       res.json(analysis);
     } catch (error) {
       console.error("Error analyzing CV for ATS:", error);
