@@ -1,0 +1,37 @@
+{
+  "cvGenerated": {
+    "subject": "Your CV is Ready - {{fullName}}",
+    "template": "cv-generated",
+    "placeholders": ["fullName", "downloadUrl", "planName"]
+  },
+  "coverLetterGenerated": {
+    "subject": "Your Cover Letter is Ready - {{fullName}}",
+    "template": "cover-letter-generated",
+    "placeholders": ["fullName", "downloadUrl", "targetCompany", "tone"]
+  },
+  "planUpgraded": {
+    "subject": "Welcome to {{planName}} - Your Account Has Been Upgraded!",
+    "template": "plan-upgraded",
+    "placeholders": ["firstName", "planName", "features", "dashboardUrl"]
+  },
+  "paymentSuccess": {
+    "subject": "Payment Successful - {{planName}} Activated",
+    "template": "payment-success",
+    "placeholders": ["firstName", "planName", "amount", "currency", "transactionId", "dashboardUrl"]
+  },
+  "paymentFailed": {
+    "subject": "Payment Issue - Please Try Again",
+    "template": "payment-failed",
+    "placeholders": ["firstName", "planName", "amount", "errorMessage", "retryUrl"]
+  },
+  "welcomeEmail": {
+    "subject": "Welcome to DevIgnite - Let's Build Your Professional CV!",
+    "template": "welcome",
+    "placeholders": ["firstName", "createCvUrl", "planName", "features"]
+  },
+  "limitReached": {
+    "subject": "You've Reached Your {{planName}} Limit",
+    "template": "limit-reached",
+    "placeholders": ["firstName", "planName", "featureName", "upgradeUrl", "nextPlanName"]
+  }
+}

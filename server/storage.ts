@@ -1,5 +1,10 @@
 import { db } from "./db";
-import { users, cvs, orders, templates, type User, type UpsertUser, type Cv, type InsertCv, type Order, type InsertOrder, type Template, type InsertTemplate } from "@shared/schema";
+import { 
+  users, cvs, orders, templates, coverLetters, emailLogs, apiKeys,
+  type User, type UpsertUser, type Cv, type InsertCv, type Order, type InsertOrder, 
+  type Template, type InsertTemplate, type CoverLetter, type InsertCoverLetter,
+  type EmailLog, type InsertEmailLog, type ApiKey, type InsertApiKey
+} from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
@@ -27,6 +32,26 @@ export interface IStorage {
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: string, order: Partial<InsertOrder>): Promise<Order | undefined>;
   decrementOrderEdits(orderId: string): Promise<void>;
+  
+  // Cover Letter operations
+  getCoverLetter(id: string): Promise<CoverLetter | undefined>;
+  getCoverLettersByUserId(userId: string): Promise<CoverLetter[]>;
+  createCoverLetter(coverLetter: InsertCoverLetter): Promise<CoverLetter>;
+  updateCoverLetter(id: string, coverLetter: Partial<InsertCoverLetter>): Promise<CoverLetter | undefined>;
+  deleteCoverLetter(id: string): Promise<boolean>;
+  
+  // Email Log operations
+  getEmailLog(id: string): Promise<EmailLog | undefined>;
+  getEmailLogsByUserId(userId: string): Promise<EmailLog[]>;
+  getAllEmailLogs(limit?: number): Promise<EmailLog[]>;
+  createEmailLog(emailLog: InsertEmailLog): Promise<EmailLog>;
+  updateEmailLog(id: string, emailLog: Partial<InsertEmailLog>): Promise<EmailLog | undefined>;
+  
+  // API Key operations (admin only)
+  getApiKey(service: string): Promise<ApiKey | undefined>;
+  getAllApiKeys(): Promise<ApiKey[]>;
+  upsertApiKey(apiKey: InsertApiKey): Promise<ApiKey>;
+  deleteApiKey(service: string): Promise<boolean>;
 }
 
 export class DbStorage implements IStorage {
@@ -103,10 +128,15 @@ export class DbStorage implements IStorage {
         .returning();
       return updated;
     } else {
-      // Insert new user
+      // Insert new user with default Basic plan
       const [user] = await db
         .insert(users)
-        .values(userData)
+        .values({
+          ...userData,
+          role: userData.role || 'user',
+          currentPlan: userData.currentPlan || 'basic',
+          planStartDate: userData.planStartDate || new Date(),
+        })
         .returning();
       return user;
     }
@@ -194,6 +224,93 @@ export class DbStorage implements IStorage {
         .where(eq(orders.id, orderId));
     }
   }
+
+  // Cover Letter operations
+  async getCoverLetter(id: string): Promise<CoverLetter | undefined> {
+    const result = await db.select().from(coverLetters).where(eq(coverLetters.id, id));
+    return result[0];
+  }
+
+  async getCoverLettersByUserId(userId: string): Promise<CoverLetter[]> {
+    return db.select().from(coverLetters).where(eq(coverLetters.userId, userId)).orderBy(desc(coverLetters.createdAt));
+  }
+
+  async createCoverLetter(coverLetter: InsertCoverLetter): Promise<CoverLetter> {
+    const result = await db.insert(coverLetters).values(coverLetter).returning();
+    return result[0];
+  }
+
+  async updateCoverLetter(id: string, coverLetter: Partial<InsertCoverLetter>): Promise<CoverLetter | undefined> {
+    const result = await db
+      .update(coverLetters)
+      .set({ ...coverLetter, updatedAt: new Date() })
+      .where(eq(coverLetters.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteCoverLetter(id: string): Promise<boolean> {
+    const result = await db.delete(coverLetters).where(eq(coverLetters.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Email Log operations
+  async getEmailLog(id: string): Promise<EmailLog | undefined> {
+    const result = await db.select().from(emailLogs).where(eq(emailLogs.id, id));
+    return result[0];
+  }
+
+  async getEmailLogsByUserId(userId: string): Promise<EmailLog[]> {
+    return db.select().from(emailLogs).where(eq(emailLogs.userId, userId)).orderBy(desc(emailLogs.createdAt));
+  }
+
+  async getAllEmailLogs(limit: number = 100): Promise<EmailLog[]> {
+    return db.select().from(emailLogs).orderBy(desc(emailLogs.createdAt)).limit(limit);
+  }
+
+  async createEmailLog(emailLog: InsertEmailLog): Promise<EmailLog> {
+    const result = await db.insert(emailLogs).values(emailLog).returning();
+    return result[0];
+  }
+
+  async updateEmailLog(id: string, emailLog: Partial<InsertEmailLog>): Promise<EmailLog | undefined> {
+    const result = await db
+      .update(emailLogs)
+      .set(emailLog)
+      .where(eq(emailLogs.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // API Key operations (admin only)
+  async getApiKey(service: string): Promise<ApiKey | undefined> {
+    const result = await db.select().from(apiKeys).where(eq(apiKeys.service, service));
+    return result[0];
+  }
+
+  async getAllApiKeys(): Promise<ApiKey[]> {
+    return db.select().from(apiKeys).orderBy(desc(apiKeys.updatedAt));
+  }
+
+  async upsertApiKey(apiKey: InsertApiKey): Promise<ApiKey> {
+    const existing = await this.getApiKey(apiKey.service);
+    if (existing) {
+      const result = await db
+        .update(apiKeys)
+        .set({ ...apiKey, updatedAt: new Date() })
+        .where(eq(apiKeys.service, apiKey.service))
+        .returning();
+      return result[0];
+    } else {
+      const result = await db.insert(apiKeys).values(apiKey).returning();
+      return result[0];
+    }
+  }
+
+  async deleteApiKey(service: string): Promise<boolean> {
+    const result = await db.delete(apiKeys).where(eq(apiKeys.service, service)).returning();
+    return result.length > 0;
+  }
 }
 
 // In-memory storage for development/testing
@@ -219,6 +336,9 @@ export class MemStorage implements IStorage {
       firstName: userData.firstName || null,
       lastName: userData.lastName || null,
       profileImageUrl: userData.profileImageUrl || null,
+      role: userData.role || existing?.role || 'user',
+      currentPlan: userData.currentPlan || existing?.currentPlan || 'basic',
+      planStartDate: userData.planStartDate || existing?.planStartDate || new Date(),
       createdAt: existing?.createdAt || new Date(),
       updatedAt: new Date(),
     };
@@ -361,6 +481,133 @@ export class MemStorage implements IStorage {
       order.updatedAt = new Date();
       this.orders.set(orderId, order);
     }
+  }
+
+  // Cover Letter operations
+  private coverLetters: Map<string, CoverLetter> = new Map();
+
+  async getCoverLetter(id: string): Promise<CoverLetter | undefined> {
+    return this.coverLetters.get(id);
+  }
+
+  async getCoverLettersByUserId(userId: string): Promise<CoverLetter[]> {
+    return Array.from(this.coverLetters.values())
+      .filter((cl) => cl.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async createCoverLetter(coverLetter: InsertCoverLetter): Promise<CoverLetter> {
+    const id = randomUUID();
+    const newCoverLetter: CoverLetter = {
+      ...coverLetter,
+      id,
+      userId: coverLetter.userId,
+      cvId: coverLetter.cvId || null,
+      companyDescription: coverLetter.companyDescription || null,
+      pdfUrl: coverLetter.pdfUrl || null,
+      pdfFileName: coverLetter.pdfFileName || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.coverLetters.set(id, newCoverLetter);
+    return newCoverLetter;
+  }
+
+  async updateCoverLetter(id: string, coverLetter: Partial<InsertCoverLetter>): Promise<CoverLetter | undefined> {
+    const existing = this.coverLetters.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...coverLetter, updatedAt: new Date() };
+    this.coverLetters.set(id, updated);
+    return updated;
+  }
+
+  async deleteCoverLetter(id: string): Promise<boolean> {
+    return this.coverLetters.delete(id);
+  }
+
+  // Email Log operations
+  private emailLogs: Map<string, EmailLog> = new Map();
+
+  async getEmailLog(id: string): Promise<EmailLog | undefined> {
+    return this.emailLogs.get(id);
+  }
+
+  async getEmailLogsByUserId(userId: string): Promise<EmailLog[]> {
+    return Array.from(this.emailLogs.values())
+      .filter((log) => log.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async getAllEmailLogs(limit: number = 100): Promise<EmailLog[]> {
+    return Array.from(this.emailLogs.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
+  }
+
+  async createEmailLog(emailLog: InsertEmailLog): Promise<EmailLog> {
+    const id = randomUUID();
+    const newEmailLog: EmailLog = {
+      ...emailLog,
+      id,
+      userId: emailLog.userId || null,
+      providerId: emailLog.providerId || null,
+      errorMessage: emailLog.errorMessage || null,
+      metadata: emailLog.metadata || null,
+      sentAt: emailLog.sentAt || null,
+      createdAt: new Date(),
+    };
+    this.emailLogs.set(id, newEmailLog);
+    return newEmailLog;
+  }
+
+  async updateEmailLog(id: string, emailLog: Partial<InsertEmailLog>): Promise<EmailLog | undefined> {
+    const existing = this.emailLogs.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...emailLog };
+    this.emailLogs.set(id, updated);
+    return updated;
+  }
+
+  // API Key operations (admin only)
+  private apiKeys: Map<string, ApiKey> = new Map();
+
+  async getApiKey(service: string): Promise<ApiKey | undefined> {
+    return this.apiKeys.get(service);
+  }
+
+  async getAllApiKeys(): Promise<ApiKey[]> {
+    return Array.from(this.apiKeys.values())
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+  }
+
+  async upsertApiKey(apiKey: InsertApiKey): Promise<ApiKey> {
+    const existing = this.apiKeys.get(apiKey.service);
+    if (existing) {
+      const updated: ApiKey = {
+        ...existing,
+        ...apiKey,
+        updatedAt: new Date(),
+      };
+      this.apiKeys.set(apiKey.service, updated);
+      return updated;
+    } else {
+      const newApiKey: ApiKey = {
+        ...apiKey,
+        id: randomUUID(),
+        isActive: apiKey.isActive ?? 1,
+        lastTestedAt: apiKey.lastTestedAt || null,
+        testStatus: apiKey.testStatus || null,
+        testMessage: apiKey.testMessage || null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.apiKeys.set(apiKey.service, newApiKey);
+      return newApiKey;
+    }
+  }
+
+  async deleteApiKey(service: string): Promise<boolean> {
+    return this.apiKeys.delete(service);
   }
 }
 

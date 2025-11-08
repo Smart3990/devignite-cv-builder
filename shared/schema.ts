@@ -21,6 +21,9 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  role: text("role").default("user").notNull(), // user, admin
+  currentPlan: text("current_plan").default("basic").notNull(), // basic, pro, premium
+  planStartDate: timestamp("plan_start_date").defaultNow(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -322,3 +325,94 @@ export const insertUsageCounterSchema = createInsertSchema(usageCounters).omit({
 
 export type InsertUsageCounter = z.infer<typeof insertUsageCounterSchema>;
 export type UsageCounter = typeof usageCounters.$inferSelect;
+
+// Cover Letters table - stores generated cover letters
+export const coverLetters = pgTable("cover_letters", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  cvId: varchar("cv_id").references(() => cvs.id, { onDelete: 'cascade' }),
+  
+  // Company and position details
+  targetCompany: text("target_company").notNull(),
+  targetPosition: text("target_position").notNull(),
+  companyDescription: text("company_description"),
+  
+  // Generated content
+  content: text("content").notNull(),
+  tone: text("tone").notNull(), // formal, friendly, creative, confident
+  
+  // PDF details
+  pdfUrl: text("pdf_url"),
+  pdfFileName: text("pdf_file_name"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertCoverLetterSchema = createInsertSchema(coverLetters).omit({ 
+  id: true, 
+  createdAt: true, 
+  updatedAt: true 
+});
+
+export type InsertCoverLetter = z.infer<typeof insertCoverLetterSchema>;
+export type CoverLetter = typeof coverLetters.$inferSelect;
+
+// Email Logs table - tracks all sent emails
+export const emailLogs = pgTable("email_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }),
+  
+  // Email details
+  recipient: text("recipient").notNull(),
+  subject: text("subject").notNull(),
+  template: text("template").notNull(),
+  
+  // Status tracking
+  status: text("status").notNull(), // queued, sending, sent, failed
+  provider: text("provider").notNull(), // resend, sendgrid, etc.
+  providerId: text("provider_id"), // External ID from email provider
+  errorMessage: text("error_message"),
+  
+  // Metadata
+  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  
+  sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertEmailLogSchema = createInsertSchema(emailLogs).omit({ 
+  id: true, 
+  createdAt: true 
+});
+
+export type InsertEmailLog = z.infer<typeof insertEmailLogSchema>;
+export type EmailLog = typeof emailLogs.$inferSelect;
+
+// API Keys table - stores encrypted integration keys (admin only)
+export const apiKeys = pgTable("api_keys", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Key details
+  service: text("service").notNull().unique(), // groq, paystack, resend, etc.
+  displayName: text("display_name").notNull(),
+  keyValue: text("key_value").notNull(), // Encrypted value
+  
+  // Status and metadata
+  isActive: integer("is_active").default(1).notNull(), // 0 = inactive, 1 = active
+  lastTestedAt: timestamp("last_tested_at"),
+  testStatus: text("test_status"), // success, failed
+  testMessage: text("test_message"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertApiKeySchema = createInsertSchema(apiKeys).omit({ 
+  id: true, 
+  createdAt: true, 
+  updatedAt: true 
+});
+
+export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
+export type ApiKey = typeof apiKeys.$inferSelect;

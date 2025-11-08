@@ -1,0 +1,57 @@
+{
+  "coverLetter": {
+    "enabled": true,
+    "tones": [
+      {
+        "id": "formal",
+        "name": "Formal",
+        "description": "Professional and traditional tone suitable for corporate environments"
+      },
+      {
+        "id": "friendly",
+        "name": "Friendly",
+        "description": "Warm and approachable while maintaining professionalism"
+      },
+      {
+        "id": "creative",
+        "name": "Creative",
+        "description": "Engaging and innovative for creative industry positions"
+      },
+      {
+        "id": "confident",
+        "name": "Confident",
+        "description": "Bold and assertive to showcase leadership qualities"
+      }
+    ],
+    "maxLength": 500,
+    "minLength": 150
+  },
+  "ai": {
+    "provider": "groq",
+    "model": "llama-3.1-70b-versatile",
+    "maxTokens": 2000,
+    "temperature": 0.7
+  },
+  "pdf": {
+    "format": "A4",
+    "margin": "10mm",
+    "printBackground": true,
+    "maxFileSize": 5242880
+  },
+  "email": {
+    "provider": "resend",
+    "fromEmail": "noreply@devignite.com",
+    "fromName": "DevIgnite",
+    "replyTo": "support@devignite.com"
+  },
+  "uploads": {
+    "maxFileSize": 2097152,
+    "allowedTypes": ["image/jpeg", "image/png", "image/webp"],
+    "photoUploadEnabled": true
+  },
+  "admin": {
+    "salesChartDays": 30,
+    "analyticsRefreshInterval": 300000,
+    "exportFormats": ["csv", "pdf"]
+  }
+}

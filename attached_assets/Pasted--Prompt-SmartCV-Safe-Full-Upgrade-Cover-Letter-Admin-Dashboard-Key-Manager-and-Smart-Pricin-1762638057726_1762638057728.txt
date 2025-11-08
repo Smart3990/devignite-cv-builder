@@ -1,0 +1,226 @@
+🧠 Prompt: SmartCV — Safe Full Upgrade (Cover Letter, Admin Dashboard, Key Manager, and Smart Pricing Gateway)
+
+Act as the world’s most advanced senior full-stack engineer, AI systems architect, and SaaS platform designer.
+You are to analyze, refactor, and enhance the existing SmartCV platform — preserving all current functionality, UI design, and routes — while adding new professional, monetizable, and stable features.
+
+🎯 Primary Mission
+
+Upgrade the SmartCV system to include:
+
+🧾 Professional AI-powered Cover Letter Generator
+
+🧠 Secure Admin Dashboard with sales, analytics, and key management
+
+💳 Smart Payment Gateway & Plan Management system
+
+📧 Reliable Email Automation
+
+🛡️ Zero Hardcoding and full backward compatibility
+
+Absolutely nothing in the existing design, routes, or UI should break.
+All enhancements must be modular, dynamic, and seamlessly integrated.
+
+🧩 1. AI Cover Letter Generator
+
+Add a professional layout aligned with the current CV design — same fonts, spacing, and visual balance.
+
+Generate dynamically using user data (name, experience, certifications, achievements, target company, etc.).
+
+Allow tone options (Formal, Friendly, Creative, Confident).
+
+Include preview, edit, and PDF download options.
+
+Fully responsive and exportable without layout distortion.
+
+Never overwrite or break the existing CV builder or dashboard UI.
+
+⚙️ 2. System-Wide Configuration (No Hardcoding)
+
+All pricing, plan limits, and text values must come from config files or the database.
+
+Keep .env and /config/*.json organized and used properly.
+
+Ensure all integrations (AI, email, payment, file storage) load from secure keys dynamically.
+
+💌 3. Reliable Email Notifications
+
+Enhance all emails (CV generated, Cover Letter generated, plan upgrade, payment success).
+
+Use professional, branded HTML templates with dynamic placeholders.
+
+Send asynchronously using a background queue (e.g., BullMQ).
+
+Store templates and subjects in config (no hardcoded content).
+
+Keep current email style intact — just ensure reliability and dynamic linking.
+
+🧭 4. Mini Admin Dashboard
+
+Add an admin-only dashboard (under /admin) with:
+
+📊 Sales Overview
+
+Total revenue, monthly sales, and plan distribution (Basic / Pro / Premium).
+
+Graphs and export (CSV, PDF).
+
+👥 User Management
+
+View users, their current plan, usage, and recent activities.
+
+Manual upgrade/downgrade.
+
+Reset or deactivate accounts.
+
+📄 Analytics
+
+CVs and Cover Letters generated.
+
+Active users, daily usage, and AI cost tracking.
+
+💌 Email Logs
+
+All sent emails with timestamp, recipient, and delivery status.
+
+🔑 Key Management Console
+
+Securely store and manage all keys (AI, Payment, Email, Storage).
+
+Show masked view (e.g., sk_live_*********B9).
+
+Allow manual key updates with encryption and validation.
+
+Include “Test Connection” for each key.
+
+Auto-load keys into environment dynamically.
+
+All admin functions should follow role-based access control (RBAC) and be safely hidden from normal users.
+
+💳 5. Smart Payment Gateway & Plan Logic
+🎟️ Default Basic Plan (Auto-assigned on signup)
+
+When a new user clicks “Get Started”, automatically assign the Basic plan (free or $0) by default.
+
+Basic plan includes access to all features once (1 CV and 1 Cover Letter generation).
+
+This plan limitation must be strictly enforced.
+
+🪙 Pricing and Limitations
+
+Basic Plan → 1 AI generation total, limited downloads.
+
+Pro Plan → 3 AI generations, includes editable Cover Letter preview and analytics.
+
+Premium Plan → Unlimited AI runs, priority processing, premium templates, and admin fast-support access.
+
+💡 Upgrade Prompt Flow
+
+When the user reaches a limit, show a modal prompt:
+
+“You’ve reached your Basic plan limit. Upgrade to Pro or Premium to continue.”
+
+Include real pricing and feature comparison dynamically (e.g., $50 for Pro, $99 for Premium).
+
+Provide options:
+
+Proceed with Current Plan (Basic) → Uses remaining credits (if any).
+
+Upgrade Plan → Redirects to payment.
+
+💰 Payment Flow
+
+Use existing or integrated Paystack / Stripe / Flutterwave gateway.
+
+When user clicks “Proceed to Payment”:
+
+Display “Current Plan: Basic — Upgrade to Pro for $50” dynamically.
+
+If upgraded, update user plan and limit counters automatically.
+
+🔄 Plan Synchronization
+
+Store current plan, limits, and usage count in DB.
+
+Auto-sync across sessions and devices.
+
+Ensure usage counter updates after every AI or document generation.
+
+⚖️ Premium Feature Differentiation
+
+Add valuable features to justify higher tiers:
+
+Pro Plan
+
+3 AI generations
+
+Cover Letter tone editor
+
+Editable CV sections
+
+Email analytics summary
+
+Premium Plan
+
+Unlimited AI usage
+
+Access to premium templates
+
+AI-enhanced job fit suggestions
+
+CV and Cover Letter cloud history
+
+Direct recruiter-share links
+
+Priority support channel
+
+🧪 6. Testing & Validation
+
+Test all plans and limits (Basic → Pro → Premium transitions).
+
+Verify payment callback updates plan correctly.
+
+Confirm Cover Letter and CV generators respect limits.
+
+Ensure Admin Dashboard loads without layout conflicts.
+
+Test Key Console save and encryption.
+
+Validate that no existing routes, functions, or UI elements are altered or broken.
+
+🧱 7. Safe Integration Rules
+
+Do not change existing designs, routes, or components.
+
+Add new code in modular folders (/admin, /payments, /cover-letter, /config).
+
+Reuse global styles and design system.
+
+Keep all updates additive, non-destructive, and version-controlled.
+
+🚀 Final Deliverable
+
+Deliver a complete, production-ready SmartCV upgrade that includes:
+
+✅ AI-powered Cover Letter Generator
+
+✅ Admin Dashboard (sales, users, analytics, key manager)
+
+✅ Dynamic Pricing Gateway with enforced plan logic
+
+✅ Professional email system
+
+✅ Zero hardcoding
+
+✅ 100% preservation of existing code and design integrity
+
+🎯 Objective
+
+Produce a non-breaking, fully-featured SaaS-grade SmartCV system where:
+
+Every new user defaults to Basic Plan with clear limits
+
+The payment gateway enforces upgrade flow and value visibility
+
+The admin can monitor sales, manage users, and control all integration keys
+
+All systems (AI, payment, email, and CV generator) operate seamlessly and professionally
