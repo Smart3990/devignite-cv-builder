@@ -11,14 +11,19 @@ This report details all comprehensive fixes applied to the SmartCV platform to e
 **Problem:** New users were not explicitly assigned to the Basic plan on signup.
 
 **Solution:**
-- ✅ Modified Clerk webhook (`/api/webhooks/clerk`) to explicitly set `currentPlan: 'basic'` for all new users
-- ✅ Added logging to track new user creation
-- ✅ Ensured `planStartDate` is set automatically
-- ✅ Both database and memory storage implementations handle default plan assignment
+- ✅ Modified Clerk webhook (`/api/webhooks/clerk`) to explicitly set `currentPlan: 'basic'` for NEW users only
+- ✅ **CRITICAL FIX:** Separated `user.created` and `user.updated` handling to preserve upgraded plans
+- ✅ Profile updates NO LONGER reset users back to Basic plan (major bug fix!)
+- ✅ Added logging to track both new user creation and profile updates
+- ✅ Ensured `planStartDate` is set automatically for new users only
+- ✅ Both database and memory storage implementations handle plan preservation correctly
 
-**Code Location:** `server/routes.ts` lines 65-82
+**Code Location:** `server/routes.ts` lines 65-91
 
-**Result:** Every new user automatically starts on the Basic plan with proper tracking.
+**Result:** 
+- Every new user automatically starts on the Basic plan
+- Upgraded users keep their plan when updating their profile
+- No accidental plan downgrades
 
 ---
 

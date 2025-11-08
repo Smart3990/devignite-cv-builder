@@ -59,7 +59,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { type, data } = req.body;
       
-      if (type === 'user.created' || type === 'user.updated') {
+      if (type === 'user.created') {
+        // New user - assign Basic plan
         const { id, email_addresses, first_name, last_name, image_url } = data;
         await storage.upsertUser({
           id,
@@ -67,15 +68,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           firstName: first_name || '',
           lastName: last_name || '',
           profileImageUrl: image_url || null,
-          // Explicitly set Basic plan for new users
+          // Explicitly set Basic plan ONLY for new users
           currentPlan: 'basic',
           planStartDate: new Date(),
         });
-        
-        // Log new user creation
-        if (type === 'user.created') {
-          console.log(`✅ New user created: ${id}, assigned to Basic plan`);
-        }
+        console.log(`✅ New user created: ${id}, assigned to Basic plan`);
+      } else if (type === 'user.updated') {
+        // Existing user - update profile info but PRESERVE their current plan
+        const { id, email_addresses, first_name, last_name, image_url } = data;
+        await storage.upsertUser({
+          id,
+          email: email_addresses?.[0]?.email_address || '',
+          firstName: first_name || '',
+          lastName: last_name || '',
+          profileImageUrl: image_url || null,
+          // DON'T set currentPlan or planStartDate - let storage preserve existing values
+        });
+        console.log(`✅ User profile updated: ${id} (plan preserved)`);
       }
       
       res.json({ success: true });
