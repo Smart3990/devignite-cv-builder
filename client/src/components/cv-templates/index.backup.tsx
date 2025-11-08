@@ -91,7 +91,7 @@ export function AzurillTemplate({ data }: TemplateProps) {
 
       {/* Skills - Rounded rectangle badges with vibrant colors */}
       {data.skills && data.skills.length > 0 && (
-        <div className="mb-6 break-inside-avoid">
+        <div>
           <h2 className="text-xl font-bold text-blue-600 mb-3 uppercase tracking-wide">Skills</h2>
           <div className="flex flex-wrap gap-2">
             {data.skills.map((skill, index) => {
@@ -102,80 +102,6 @@ export function AzurillTemplate({ data }: TemplateProps) {
                 </span>
               );
             })}
-          </div>
-        </div>
-      )}
-
-      {/* Certifications */}
-      {data.certifications && data.certifications.length > 0 && (
-        <div className="mb-6 break-inside-avoid">
-          <h2 className="text-xl font-bold text-blue-600 mb-3 uppercase tracking-wide">Certifications</h2>
-          <div className="space-y-3">
-            {data.certifications.map((cert, index) => (
-              <div key={index} className="break-inside-avoid">
-                <div className="flex justify-between items-baseline mb-1">
-                  <h3 className="font-bold">{cert.name}</h3>
-                  <span className="text-sm text-gray-600">
-                    {new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                  </span>
-                </div>
-                <p className="text-gray-700">{cert.issuer}</p>
-                {cert.credentialId && <p className="text-gray-600 text-sm">ID: {cert.credentialId}</p>}
-                {cert.url && <a href={cert.url} className="text-blue-600 text-sm hover:underline">View Certificate</a>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Achievements */}
-      {data.achievements && data.achievements.length > 0 && (
-        <div className="mb-6 break-inside-avoid">
-          <h2 className="text-xl font-bold text-blue-600 mb-3 uppercase tracking-wide">Achievements</h2>
-          <div className="space-y-3">
-            {data.achievements.map((achievement, index) => (
-              <div key={index} className="break-inside-avoid">
-                <div className="flex justify-between items-baseline mb-1">
-                  <h3 className="font-bold">{achievement.title}</h3>
-                  {achievement.date && (
-                    <span className="text-sm text-gray-600">
-                      {new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                    </span>
-                  )}
-                </div>
-                <p className="text-gray-700 whitespace-pre-line">{achievement.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Custom Sections */}
-      {data.customSections && data.customSections.length > 0 && (
-        <>
-          {data.customSections.map((section, index) => (
-            <div key={index} className="mb-6 break-inside-avoid">
-              <h2 className="text-xl font-bold text-blue-600 mb-3 uppercase tracking-wide">{section.title}</h2>
-              <p className="text-gray-700 whitespace-pre-line leading-relaxed">{section.content}</p>
-            </div>
-          ))}
-        </>
-      )}
-
-      {/* References */}
-      {data.references && data.references.length > 0 && (
-        <div className="break-inside-avoid">
-          <h2 className="text-xl font-bold text-blue-600 mb-3 uppercase tracking-wide">References</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {data.references.map((ref, index) => (
-              <div key={index} className="break-inside-avoid">
-                <h3 className="font-bold">{ref.name}</h3>
-                <p className="text-gray-700 text-sm">{ref.position}</p>
-                <p className="text-gray-700 text-sm">{ref.company}</p>
-                {ref.email && <p className="text-gray-600 text-sm">{ref.email}</p>}
-                {ref.phone && <p className="text-gray-600 text-sm">{ref.phone}</p>}
-              </div>
-            ))}
           </div>
         </div>
       )}
@@ -233,31 +159,12 @@ export function BronzorTemplate({ data }: TemplateProps) {
               <h2 className="text-lg font-bold text-orange-600 mb-3 pb-2 border-b-2 border-orange-600">EDUCATION</h2>
               <div className="space-y-3">
                 {data.education.map((edu, index) => (
-                  <div key={index} className="text-sm break-inside-avoid">
+                  <div key={index} className="text-sm">
                     <p className="font-bold text-gray-900">{edu.degree}</p>
                     <p className="text-gray-700">{edu.institution}</p>
                     <p className="text-gray-600 text-xs">
                       {new Date(edu.startDate).toLocaleDateString('en-US', { year: 'numeric' })} - {edu.current ? 'Present' : new Date(edu.endDate || '').toLocaleDateString('en-US', { year: 'numeric' })}
                     </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Certifications */}
-          {data.certifications && data.certifications.length > 0 && (
-            <div>
-              <h2 className="text-lg font-bold text-orange-600 mb-3 pb-2 border-b-2 border-orange-600">CERTIFICATIONS</h2>
-              <div className="space-y-3">
-                {data.certifications.map((cert, index) => (
-                  <div key={index} className="text-sm break-inside-avoid">
-                    <p className="font-bold text-gray-900">{cert.name}</p>
-                    <p className="text-gray-700">{cert.issuer}</p>
-                    <p className="text-gray-600 text-xs">
-                      {new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                    </p>
-                    {cert.credentialId && <p className="text-gray-600 text-xs">ID: {cert.credentialId}</p>}
                   </div>
                 ))}
               </div>
@@ -281,7 +188,7 @@ export function BronzorTemplate({ data }: TemplateProps) {
               <h2 className="text-lg font-bold text-orange-600 mb-3 pb-2 border-b-2 border-orange-600">EXPERIENCE</h2>
               <div className="space-y-4">
                 {data.experience.map((exp, index) => (
-                  <div key={index} className="break-inside-avoid">
+                  <div key={index}>
                     <h3 className="font-bold text-gray-900">{exp.title}</h3>
                     <p className="text-gray-700 text-sm font-semibold">{exp.company}</p>
                     <p className="text-gray-600 text-xs mb-2">
@@ -293,58 +200,8 @@ export function BronzorTemplate({ data }: TemplateProps) {
               </div>
             </div>
           )}
-
-          {/* Achievements */}
-          {data.achievements && data.achievements.length > 0 && (
-            <div>
-              <h2 className="text-lg font-bold text-orange-600 mb-3 pb-2 border-b-2 border-orange-600">ACHIEVEMENTS</h2>
-              <div className="space-y-3">
-                {data.achievements.map((achievement, index) => (
-                  <div key={index} className="break-inside-avoid">
-                    <h3 className="font-bold text-gray-900">{achievement.title}</h3>
-                    {achievement.date && (
-                      <p className="text-gray-600 text-xs mb-1">
-                        {new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                      </p>
-                    )}
-                    <p className="text-gray-700 text-sm whitespace-pre-line">{achievement.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Custom Sections */}
-          {data.customSections && data.customSections.length > 0 && (
-            <>
-              {data.customSections.map((section, index) => (
-                <div key={index}>
-                  <h2 className="text-lg font-bold text-orange-600 mb-3 pb-2 border-b-2 border-orange-600">{section.title.toUpperCase()}</h2>
-                  <p className="text-gray-700 text-sm whitespace-pre-line leading-relaxed">{section.content}</p>
-                </div>
-              ))}
-            </>
-          )}
         </div>
       </div>
-
-      {/* References - Full width at bottom */}
-      {data.references && data.references.length > 0 && (
-        <div className="px-8 pb-8 break-inside-avoid">
-          <h2 className="text-lg font-bold text-orange-600 mb-3 pb-2 border-b-2 border-orange-600">REFERENCES</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {data.references.map((ref, index) => (
-              <div key={index} className="text-sm break-inside-avoid">
-                <p className="font-bold text-gray-900">{ref.name}</p>
-                <p className="text-gray-700">{ref.position}</p>
-                <p className="text-gray-700">{ref.company}</p>
-                {ref.email && <p className="text-gray-600 text-xs">{ref.email}</p>}
-                {ref.phone && <p className="text-gray-600 text-xs">{ref.phone}</p>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -405,14 +262,14 @@ export function ChikoritaTemplate({ data }: TemplateProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-2 gap-6">
         {/* Education */}
         {data.education && data.education.length > 0 && (
-          <div className="break-inside-avoid">
+          <div>
             <h2 className="text-2xl font-bold text-green-600 mb-4">Education</h2>
             <div className="space-y-3">
               {data.education.map((edu, index) => (
-                <div key={index} className="break-inside-avoid">
+                <div key={index}>
                   <h3 className="font-bold text-gray-900">{edu.degree}</h3>
                   <p className="text-gray-700">{edu.institution}</p>
                   <p className="text-gray-600 text-sm">
@@ -426,7 +283,7 @@ export function ChikoritaTemplate({ data }: TemplateProps) {
 
         {/* Skills - Icon + label pills */}
         {data.skills && data.skills.length > 0 && (
-          <div className="break-inside-avoid">
+          <div>
             <h2 className="text-2xl font-bold text-green-600 mb-4">Skills</h2>
             <div className="flex flex-wrap gap-2">
               {data.skills.map((skill, index) => (
@@ -439,80 +296,6 @@ export function ChikoritaTemplate({ data }: TemplateProps) {
           </div>
         )}
       </div>
-
-      {/* Certifications */}
-      {data.certifications && data.certifications.length > 0 && (
-        <div className="mb-6 break-inside-avoid">
-          <h2 className="text-2xl font-bold text-green-600 mb-4">Certifications</h2>
-          <div className="space-y-3">
-            {data.certifications.map((cert, index) => (
-              <div key={index} className="border-l-4 border-green-500 pl-4 break-inside-avoid">
-                <div className="flex justify-between items-baseline flex-wrap gap-2 mb-1">
-                  <h3 className="font-bold text-gray-900">{cert.name}</h3>
-                  <span className="text-sm text-gray-600 font-medium">
-                    {new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                  </span>
-                </div>
-                <p className="text-gray-700">{cert.issuer}</p>
-                {cert.credentialId && <p className="text-gray-600 text-sm">ID: {cert.credentialId}</p>}
-                {cert.url && <a href={cert.url} className="text-green-600 text-sm hover:underline">View Certificate</a>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Achievements */}
-      {data.achievements && data.achievements.length > 0 && (
-        <div className="mb-6 break-inside-avoid">
-          <h2 className="text-2xl font-bold text-green-600 mb-4">Achievements</h2>
-          <div className="space-y-3">
-            {data.achievements.map((achievement, index) => (
-              <div key={index} className="border-l-4 border-green-500 pl-4 break-inside-avoid">
-                <div className="flex justify-between items-baseline flex-wrap gap-2 mb-1">
-                  <h3 className="font-bold text-gray-900">{achievement.title}</h3>
-                  {achievement.date && (
-                    <span className="text-sm text-gray-600 font-medium">
-                      {new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                    </span>
-                  )}
-                </div>
-                <p className="text-gray-700 whitespace-pre-line">{achievement.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Custom Sections */}
-      {data.customSections && data.customSections.length > 0 && (
-        <>
-          {data.customSections.map((section, index) => (
-            <div key={index} className="mb-6 break-inside-avoid">
-              <h2 className="text-2xl font-bold text-green-600 mb-4">{section.title}</h2>
-              <p className="text-gray-700 whitespace-pre-line leading-relaxed">{section.content}</p>
-            </div>
-          ))}
-        </>
-      )}
-
-      {/* References */}
-      {data.references && data.references.length > 0 && (
-        <div className="break-inside-avoid">
-          <h2 className="text-2xl font-bold text-green-600 mb-4">References</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {data.references.map((ref, index) => (
-              <div key={index} className="break-inside-avoid">
-                <h3 className="font-bold text-gray-900">{ref.name}</h3>
-                <p className="text-gray-700 text-sm">{ref.position}</p>
-                <p className="text-gray-700 text-sm">{ref.company}</p>
-                {ref.email && <p className="text-gray-600 text-sm">{ref.email}</p>}
-                {ref.phone && <p className="text-gray-600 text-sm">{ref.phone}</p>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -596,7 +379,7 @@ export function DittoTemplate({ data }: TemplateProps) {
 
       {/* Skills - Multi-color tags with different colors */}
       {data.skills && data.skills.length > 0 && (
-        <div className="mb-8 break-inside-avoid">
+        <div>
           <h2 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-widest">Skills</h2>
           <div className="flex flex-wrap gap-2">
             {data.skills.map((skill, index) => {
@@ -617,82 +400,6 @@ export function DittoTemplate({ data }: TemplateProps) {
                 </span>
               );
             })}
-          </div>
-        </div>
-      )}
-
-      {/* Certifications */}
-      {data.certifications && data.certifications.length > 0 && (
-        <div className="mb-8 break-inside-avoid">
-          <h2 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-widest">Certifications</h2>
-          <div className="space-y-4">
-            {data.certifications.map((cert, index) => (
-              <div key={index} className="break-inside-avoid">
-                <div className="flex justify-between items-baseline">
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{cert.name}</h3>
-                    <p className="text-gray-600">{cert.issuer}</p>
-                    {cert.credentialId && <p className="text-gray-500 text-sm">ID: {cert.credentialId}</p>}
-                  </div>
-                  <span className="text-sm text-gray-500">
-                    {new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                  </span>
-                </div>
-                {cert.url && <a href={cert.url} className="text-blue-600 text-sm hover:underline">View Certificate</a>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Achievements */}
-      {data.achievements && data.achievements.length > 0 && (
-        <div className="mb-8 break-inside-avoid">
-          <h2 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-widest">Achievements</h2>
-          <div className="space-y-4">
-            {data.achievements.map((achievement, index) => (
-              <div key={index} className="break-inside-avoid">
-                <div className="flex justify-between items-baseline mb-2">
-                  <h3 className="font-semibold text-gray-900">{achievement.title}</h3>
-                  {achievement.date && (
-                    <span className="text-sm text-gray-500">
-                      {new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                    </span>
-                  )}
-                </div>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">{achievement.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Custom Sections */}
-      {data.customSections && data.customSections.length > 0 && (
-        <>
-          {data.customSections.map((section, index) => (
-            <div key={index} className="mb-8 break-inside-avoid">
-              <h2 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-widest">{section.title}</h2>
-              <p className="text-gray-700 leading-relaxed whitespace-pre-line">{section.content}</p>
-            </div>
-          ))}
-        </>
-      )}
-
-      {/* References */}
-      {data.references && data.references.length > 0 && (
-        <div className="break-inside-avoid">
-          <h2 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-widest">References</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {data.references.map((ref, index) => (
-              <div key={index} className="break-inside-avoid">
-                <h3 className="font-semibold text-gray-900">{ref.name}</h3>
-                <p className="text-gray-600 text-sm">{ref.position}</p>
-                <p className="text-gray-600 text-sm">{ref.company}</p>
-                {ref.email && <p className="text-gray-500 text-sm">{ref.email}</p>}
-                {ref.phone && <p className="text-gray-500 text-sm">{ref.phone}</p>}
-              </div>
-            ))}
           </div>
         </div>
       )}
@@ -754,13 +461,13 @@ export function GengarTemplate({ data }: TemplateProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-2 gap-6">
         {data.education && data.education.length > 0 && (
-          <div className="break-inside-avoid">
+          <div>
             <h2 className="text-xl font-bold text-purple-400 mb-4">EDUCATION</h2>
             <div className="space-y-3">
               {data.education.map((edu, index) => (
-                <div key={index} className="break-inside-avoid">
+                <div key={index}>
                   <h3 className="font-bold text-gray-100">{edu.degree}</h3>
                   <p className="text-gray-300">{edu.institution}</p>
                   <p className="text-gray-400 text-sm">
@@ -773,7 +480,7 @@ export function GengarTemplate({ data }: TemplateProps) {
         )}
 
         {data.skills && data.skills.length > 0 && (
-          <div className="break-inside-avoid">
+          <div>
             <h2 className="text-xl font-bold text-purple-400 mb-4">SKILLS</h2>
             <div className="flex flex-wrap gap-2">
               {data.skills.map((skill, index) => (
@@ -786,80 +493,6 @@ export function GengarTemplate({ data }: TemplateProps) {
           </div>
         )}
       </div>
-
-      {/* Certifications */}
-      {data.certifications && data.certifications.length > 0 && (
-        <div className="mb-6 break-inside-avoid">
-          <h2 className="text-xl font-bold text-purple-400 mb-4">CERTIFICATIONS</h2>
-          <div className="space-y-3">
-            {data.certifications.map((cert, index) => (
-              <div key={index} className="border-l-2 border-purple-500 pl-4 break-inside-avoid">
-                <div className="flex justify-between items-baseline mb-1">
-                  <h3 className="font-bold text-gray-100">{cert.name}</h3>
-                  <span className="text-sm text-gray-400">
-                    {new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                  </span>
-                </div>
-                <p className="text-gray-300">{cert.issuer}</p>
-                {cert.credentialId && <p className="text-gray-400 text-sm">ID: {cert.credentialId}</p>}
-                {cert.url && <a href={cert.url} className="text-purple-400 text-sm hover:underline">View Certificate</a>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Achievements */}
-      {data.achievements && data.achievements.length > 0 && (
-        <div className="mb-6 break-inside-avoid">
-          <h2 className="text-xl font-bold text-purple-400 mb-4">ACHIEVEMENTS</h2>
-          <div className="space-y-3">
-            {data.achievements.map((achievement, index) => (
-              <div key={index} className="border-l-2 border-purple-500 pl-4 break-inside-avoid">
-                <div className="flex justify-between items-baseline mb-1">
-                  <h3 className="font-bold text-gray-100">{achievement.title}</h3>
-                  {achievement.date && (
-                    <span className="text-sm text-gray-400">
-                      {new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                    </span>
-                  )}
-                </div>
-                <p className="text-gray-300 whitespace-pre-line">{achievement.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Custom Sections */}
-      {data.customSections && data.customSections.length > 0 && (
-        <>
-          {data.customSections.map((section, index) => (
-            <div key={index} className="mb-6 break-inside-avoid">
-              <h2 className="text-xl font-bold text-purple-400 mb-4">{section.title.toUpperCase()}</h2>
-              <p className="text-gray-300 whitespace-pre-line leading-relaxed">{section.content}</p>
-            </div>
-          ))}
-        </>
-      )}
-
-      {/* References */}
-      {data.references && data.references.length > 0 && (
-        <div className="break-inside-avoid">
-          <h2 className="text-xl font-bold text-purple-400 mb-4">REFERENCES</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {data.references.map((ref, index) => (
-              <div key={index} className="break-inside-avoid">
-                <h3 className="font-bold text-gray-100">{ref.name}</h3>
-                <p className="text-gray-300 text-sm">{ref.position}</p>
-                <p className="text-gray-300 text-sm">{ref.company}</p>
-                {ref.email && <p className="text-gray-400 text-sm">{ref.email}</p>}
-                {ref.phone && <p className="text-gray-400 text-sm">{ref.phone}</p>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -952,7 +585,7 @@ export function GlalieTemplate({ data }: TemplateProps) {
                 <h2 className="text-lg font-bold text-blue-600 mb-3">EDUCATION</h2>
                 <div className="space-y-3 text-sm">
                   {data.education.map((edu, index) => (
-                    <div key={index} className="break-inside-avoid">
+                    <div key={index}>
                       <p className="font-bold text-gray-900">{edu.degree}</p>
                       <p className="text-gray-700">{edu.institution}</p>
                       <p className="text-gray-600 text-xs">
@@ -963,87 +596,8 @@ export function GlalieTemplate({ data }: TemplateProps) {
                 </div>
               </div>
             )}
-
-            {/* Certifications in sidebar */}
-            {data.certifications && data.certifications.length > 0 && (
-              <div>
-                <h2 className="text-lg font-bold text-blue-600 mb-3">CERTIFICATIONS</h2>
-                <div className="space-y-3 text-sm">
-                  {data.certifications.map((cert, index) => (
-                    <div key={index} className="break-inside-avoid">
-                      <p className="font-bold text-gray-900">{cert.name}</p>
-                      <p className="text-gray-700">{cert.issuer}</p>
-                      <p className="text-gray-600 text-xs">
-                        {new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
-
-        {/* Achievements - Full width */}
-        {data.achievements && data.achievements.length > 0 && (
-          <div className="mt-8 break-inside-avoid">
-            <h2 className="text-xl font-bold text-blue-600 mb-4 flex items-center gap-2">
-              <div className="w-1 h-6 bg-blue-600"></div>
-              ACHIEVEMENTS
-            </h2>
-            <div className="space-y-3">
-              {data.achievements.map((achievement, index) => (
-                <div key={index} className="break-inside-avoid">
-                  <div className="flex justify-between items-baseline mb-1">
-                    <h3 className="font-bold text-gray-900">{achievement.title}</h3>
-                    {achievement.date && (
-                      <span className="text-sm text-gray-600">
-                        {new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-gray-700 text-sm whitespace-pre-line">{achievement.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Custom Sections - Full width */}
-        {data.customSections && data.customSections.length > 0 && (
-          <>
-            {data.customSections.map((section, index) => (
-              <div key={index} className="mt-8 break-inside-avoid">
-                <h2 className="text-xl font-bold text-blue-600 mb-4 flex items-center gap-2">
-                  <div className="w-1 h-6 bg-blue-600"></div>
-                  {section.title.toUpperCase()}
-                </h2>
-                <p className="text-gray-700 whitespace-pre-line leading-relaxed">{section.content}</p>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* References - Full width */}
-        {data.references && data.references.length > 0 && (
-          <div className="mt-8 break-inside-avoid">
-            <h2 className="text-xl font-bold text-blue-600 mb-4 flex items-center gap-2">
-              <div className="w-1 h-6 bg-blue-600"></div>
-              REFERENCES
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {data.references.map((ref, index) => (
-                <div key={index} className="text-sm break-inside-avoid">
-                  <p className="font-bold text-gray-900">{ref.name}</p>
-                  <p className="text-gray-700">{ref.position}</p>
-                  <p className="text-gray-700">{ref.company}</p>
-                  {ref.email && <p className="text-gray-600">{ref.email}</p>}
-                  {ref.phone && <p className="text-gray-600">{ref.phone}</p>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1094,13 +648,13 @@ export function KakunaTemplate({ data }: TemplateProps) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-2 gap-4">
           {data.education && data.education.length > 0 && (
-            <div className="break-inside-avoid">
+            <div>
               <h2 className="text-sm font-bold mb-2 uppercase bg-gray-900 text-white px-2 py-1">Education</h2>
               <div className="space-y-2">
                 {data.education.map((edu, index) => (
-                  <div key={index} className="text-xs break-inside-avoid">
+                  <div key={index} className="text-xs">
                     <p className="font-bold">{edu.degree}</p>
                     <p className="text-gray-700">{edu.institution}</p>
                   </div>
@@ -1110,7 +664,7 @@ export function KakunaTemplate({ data }: TemplateProps) {
           )}
 
           {data.skills && data.skills.length > 0 && (
-            <div className="break-inside-avoid">
+            <div>
               <h2 className="text-sm font-bold mb-2 uppercase bg-gray-900 text-white px-2 py-1">Skills</h2>
               <div className="flex flex-wrap gap-1.5">
                 {data.skills.map((skill, index) => (
@@ -1122,69 +676,6 @@ export function KakunaTemplate({ data }: TemplateProps) {
             </div>
           )}
         </div>
-
-        {/* Certifications & Achievements grid */}
-        {(data.certifications && data.certifications.length > 0) || (data.achievements && data.achievements.length > 0) ? (
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            {data.certifications && data.certifications.length > 0 && (
-              <div className="break-inside-avoid">
-                <h2 className="text-sm font-bold mb-2 uppercase bg-gray-900 text-white px-2 py-1">Certifications</h2>
-                <div className="space-y-2">
-                  {data.certifications.map((cert, index) => (
-                    <div key={index} className="text-xs break-inside-avoid">
-                      <p className="font-bold">{cert.name}</p>
-                      <p className="text-gray-700">{cert.issuer}</p>
-                      <p className="text-gray-600 text-xs">{new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {data.achievements && data.achievements.length > 0 && (
-              <div className="break-inside-avoid">
-                <h2 className="text-sm font-bold mb-2 uppercase bg-gray-900 text-white px-2 py-1">Achievements</h2>
-                <div className="space-y-2">
-                  {data.achievements.map((achievement, index) => (
-                    <div key={index} className="text-xs break-inside-avoid">
-                      <p className="font-bold">{achievement.title}</p>
-                      <p className="text-gray-700">{achievement.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : null}
-
-        {/* Custom Sections */}
-        {data.customSections && data.customSections.length > 0 && (
-          <>
-            {data.customSections.map((section, index) => (
-              <div key={index} className="mb-4 break-inside-avoid">
-                <h2 className="text-sm font-bold mb-2 uppercase bg-gray-900 text-white px-2 py-1">{section.title}</h2>
-                <p className="text-xs text-gray-700 whitespace-pre-line">{section.content}</p>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* References */}
-        {data.references && data.references.length > 0 && (
-          <div className="break-inside-avoid">
-            <h2 className="text-sm font-bold mb-2 uppercase bg-gray-900 text-white px-2 py-1">References</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {data.references.map((ref, index) => (
-                <div key={index} className="text-xs break-inside-avoid">
-                  <p className="font-bold">{ref.name}</p>
-                  <p className="text-gray-700">{ref.position}</p>
-                  <p className="text-gray-700">{ref.company}</p>
-                  {ref.email && <p className="text-gray-600">{ref.email}</p>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1239,13 +730,13 @@ export function LeafishTemplate({ data }: TemplateProps) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-2 gap-6">
           {data.education && data.education.length > 0 && (
-            <div className="break-inside-avoid">
+            <div>
               <h2 className="text-2xl font-bold text-emerald-700 mb-4">Education</h2>
               <div className="space-y-3">
                 {data.education.map((edu, index) => (
-                  <div key={index} className="bg-white rounded-xl p-4 shadow-sm break-inside-avoid">
+                  <div key={index} className="bg-white rounded-xl p-4 shadow-sm">
                     <h3 className="font-bold text-gray-900">{edu.degree}</h3>
                     <p className="text-gray-700">{edu.institution}</p>
                   </div>
@@ -1255,7 +746,7 @@ export function LeafishTemplate({ data }: TemplateProps) {
           )}
 
           {data.skills && data.skills.length > 0 && (
-            <div className="break-inside-avoid">
+            <div>
               <h2 className="text-2xl font-bold text-emerald-700 mb-4">Skills</h2>
               <div className="flex flex-wrap gap-2">
                 {data.skills.map((skill, index) => (
@@ -1269,82 +760,6 @@ export function LeafishTemplate({ data }: TemplateProps) {
             </div>
           )}
         </div>
-
-        {/* Certifications */}
-        {data.certifications && data.certifications.length > 0 && (
-          <div className="mb-8 break-inside-avoid">
-            <h2 className="text-2xl font-bold text-emerald-700 mb-4">Certifications</h2>
-            <div className="space-y-3">
-              {data.certifications.map((cert, index) => (
-                <div key={index} className="bg-white rounded-xl p-4 shadow-sm break-inside-avoid">
-                  <div className="flex justify-between items-baseline mb-1">
-                    <h3 className="font-bold text-gray-900">{cert.name}</h3>
-                    <span className="text-sm text-emerald-600">
-                      {new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                    </span>
-                  </div>
-                  <p className="text-gray-700">{cert.issuer}</p>
-                  {cert.credentialId && <p className="text-gray-600 text-sm">ID: {cert.credentialId}</p>}
-                  {cert.url && <a href={cert.url} className="text-emerald-600 text-sm hover:underline">View Certificate</a>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Achievements */}
-        {data.achievements && data.achievements.length > 0 && (
-          <div className="mb-8 break-inside-avoid">
-            <h2 className="text-2xl font-bold text-emerald-700 mb-4">Achievements</h2>
-            <div className="space-y-3">
-              {data.achievements.map((achievement, index) => (
-                <div key={index} className="bg-white rounded-xl p-4 shadow-sm break-inside-avoid">
-                  <div className="flex justify-between items-baseline mb-1">
-                    <h3 className="font-bold text-gray-900">{achievement.title}</h3>
-                    {achievement.date && (
-                      <span className="text-sm text-emerald-600">
-                        {new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-gray-700 whitespace-pre-line">{achievement.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Custom Sections */}
-        {data.customSections && data.customSections.length > 0 && (
-          <>
-            {data.customSections.map((section, index) => (
-              <div key={index} className="mb-8 break-inside-avoid">
-                <h2 className="text-2xl font-bold text-emerald-700 mb-4">{section.title}</h2>
-                <div className="bg-emerald-50 rounded-2xl p-6">
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">{section.content}</p>
-                </div>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* References */}
-        {data.references && data.references.length > 0 && (
-          <div className="break-inside-avoid">
-            <h2 className="text-2xl font-bold text-emerald-700 mb-4">References</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {data.references.map((ref, index) => (
-                <div key={index} className="bg-white rounded-xl p-4 shadow-sm break-inside-avoid">
-                  <h3 className="font-bold text-gray-900">{ref.name}</h3>
-                  <p className="text-gray-700 text-sm">{ref.position}</p>
-                  <p className="text-gray-700 text-sm">{ref.company}</p>
-                  {ref.email && <p className="text-gray-600 text-sm">{ref.email}</p>}
-                  {ref.phone && <p className="text-gray-600 text-sm">{ref.phone}</p>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1406,13 +821,13 @@ export function NosepassTemplate({ data }: TemplateProps) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-8 mb-6 pb-6 border-b-2 border-gray-800">
+        <div className="grid grid-cols-2 gap-8">
           {data.education && data.education.length > 0 && (
-            <div className="break-inside-avoid">
+            <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-4">EDUCATION</h2>
               <div className="space-y-3">
                 {data.education.map((edu, index) => (
-                  <div key={index} className="bg-gray-100 p-4 rounded-lg break-inside-avoid">
+                  <div key={index} className="bg-gray-100 p-4 rounded-lg">
                     <h3 className="font-bold text-gray-900">{edu.degree}</h3>
                     <p className="text-gray-700">{edu.institution}</p>
                     <p className="text-gray-600 text-sm">
@@ -1425,7 +840,7 @@ export function NosepassTemplate({ data }: TemplateProps) {
           )}
 
           {data.skills && data.skills.length > 0 && (
-            <div className="break-inside-avoid">
+            <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-4">SKILLS</h2>
               <div className="flex flex-wrap gap-2">
                 {data.skills.map((skill, index) => {
@@ -1442,78 +857,6 @@ export function NosepassTemplate({ data }: TemplateProps) {
             </div>
           )}
         </div>
-
-        {/* Certifications & Achievements grid */}
-        {(data.certifications && data.certifications.length > 0) || (data.achievements && data.achievements.length > 0) ? (
-          <div className="grid grid-cols-2 gap-8 mb-6 pb-6 border-b-2 border-gray-800">
-            {data.certifications && data.certifications.length > 0 && (
-              <div className="break-inside-avoid">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">CERTIFICATIONS</h2>
-                <div className="space-y-3">
-                  {data.certifications.map((cert, index) => (
-                    <div key={index} className="bg-gray-100 p-4 rounded-lg break-inside-avoid">
-                      <h3 className="font-bold text-gray-900">{cert.name}</h3>
-                      <p className="text-gray-700">{cert.issuer}</p>
-                      <p className="text-gray-600 text-sm">
-                        {new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                      </p>
-                      {cert.credentialId && <p className="text-gray-600 text-xs">ID: {cert.credentialId}</p>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {data.achievements && data.achievements.length > 0 && (
-              <div className="break-inside-avoid">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">ACHIEVEMENTS</h2>
-                <div className="space-y-3">
-                  {data.achievements.map((achievement, index) => (
-                    <div key={index} className="bg-gray-100 p-4 rounded-lg break-inside-avoid">
-                      <h3 className="font-bold text-gray-900">{achievement.title}</h3>
-                      {achievement.date && (
-                        <p className="text-gray-600 text-xs mb-1">
-                          {new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-                        </p>
-                      )}
-                      <p className="text-gray-700 whitespace-pre-line">{achievement.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : null}
-
-        {/* Custom Sections */}
-        {data.customSections && data.customSections.length > 0 && (
-          <>
-            {data.customSections.map((section, index) => (
-              <div key={index} className="mb-6 pb-6 border-b-2 border-gray-800 break-inside-avoid">
-                <h2 className="text-2xl font-bold text-gray-800 mb-3">{section.title.toUpperCase()}</h2>
-                <p className="text-gray-700 text-lg whitespace-pre-line">{section.content}</p>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* References */}
-        {data.references && data.references.length > 0 && (
-          <div className="break-inside-avoid">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">REFERENCES</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {data.references.map((ref, index) => (
-                <div key={index} className="bg-gray-100 p-4 rounded-lg break-inside-avoid">
-                  <h3 className="font-bold text-gray-900">{ref.name}</h3>
-                  <p className="text-gray-700 text-sm">{ref.position}</p>
-                  <p className="text-gray-700 text-sm">{ref.company}</p>
-                  {ref.email && <p className="text-gray-600 text-sm">{ref.email}</p>}
-                  {ref.phone && <p className="text-gray-600 text-sm">{ref.phone}</p>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1570,13 +913,13 @@ export function OnyxTemplate({ data }: TemplateProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-10 mb-10">
+      <div className="grid grid-cols-2 gap-10">
         {data.education && data.education.length > 0 && (
-          <div className="break-inside-avoid">
+          <div>
             <h2 className="text-3xl font-bold mb-6">EDUCATION</h2>
             <div className="space-y-4">
               {data.education.map((edu, index) => (
-                <div key={index} className="break-inside-avoid">
+                <div key={index}>
                   <h3 className="font-bold text-lg">{edu.degree}</h3>
                   <p className="text-gray-400">{edu.institution}</p>
                   <p className="text-gray-500 text-sm">
@@ -1589,7 +932,7 @@ export function OnyxTemplate({ data }: TemplateProps) {
         )}
 
         {data.skills && data.skills.length > 0 && (
-          <div className="break-inside-avoid">
+          <div>
             <h2 className="text-3xl font-bold mb-6">SKILLS</h2>
             <div className="flex flex-wrap gap-2">
               {data.skills.map((skill, index) => (
@@ -1602,72 +945,6 @@ export function OnyxTemplate({ data }: TemplateProps) {
           </div>
         )}
       </div>
-
-      {/* Certifications & Achievements */}
-      {(data.certifications && data.certifications.length > 0) || (data.achievements && data.achievements.length > 0) ? (
-        <div className="grid grid-cols-2 gap-10 mb-10">
-          {data.certifications && data.certifications.length > 0 && (
-            <div className="break-inside-avoid">
-              <h2 className="text-3xl font-bold mb-6">CERTIFICATIONS</h2>
-              <div className="space-y-4">
-                {data.certifications.map((cert, index) => (
-                  <div key={index} className="break-inside-avoid">
-                    <h3 className="font-bold text-lg">{cert.name}</h3>
-                    <p className="text-gray-400">{cert.issuer}</p>
-                    <p className="text-gray-500 text-sm">{new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</p>
-                    {cert.credentialId && <p className="text-gray-600 text-xs">ID: {cert.credentialId}</p>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {data.achievements && data.achievements.length > 0 && (
-            <div className="break-inside-avoid">
-              <h2 className="text-3xl font-bold mb-6">ACHIEVEMENTS</h2>
-              <div className="space-y-4">
-                {data.achievements.map((achievement, index) => (
-                  <div key={index} className="break-inside-avoid">
-                    <h3 className="font-bold text-lg">{achievement.title}</h3>
-                    {achievement.date && <p className="text-gray-500 text-sm mb-1">{new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</p>}
-                    <p className="text-gray-300 whitespace-pre-line">{achievement.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      ) : null}
-
-      {/* Custom Sections */}
-      {data.customSections && data.customSections.length > 0 && (
-        <>
-          {data.customSections.map((section, index) => (
-            <div key={index} className="mb-10 break-inside-avoid">
-              <h2 className="text-3xl font-bold mb-6">{section.title.toUpperCase()}</h2>
-              <p className="text-xl text-gray-300 leading-relaxed whitespace-pre-line">{section.content}</p>
-            </div>
-          ))}
-        </>
-      )}
-
-      {/* References */}
-      {data.references && data.references.length > 0 && (
-        <div className="break-inside-avoid">
-          <h2 className="text-3xl font-bold mb-6">REFERENCES</h2>
-          <div className="grid grid-cols-2 gap-6">
-            {data.references.map((ref, index) => (
-              <div key={index} className="break-inside-avoid">
-                <h3 className="font-bold text-lg">{ref.name}</h3>
-                <p className="text-gray-400 text-sm">{ref.position}</p>
-                <p className="text-gray-400 text-sm">{ref.company}</p>
-                {ref.email && <p className="text-gray-500 text-sm">{ref.email}</p>}
-                {ref.phone && <p className="text-gray-500 text-sm">{ref.phone}</p>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -1725,13 +1002,13 @@ export function PikachuTemplate({ data }: TemplateProps) {
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-2 gap-8">
           {data.education && data.education.length > 0 && (
-            <div className="break-inside-avoid">
+            <div>
               <h2 className="text-2xl font-bold text-yellow-600 mb-4 pb-2 border-b-2 border-yellow-500">EDUCATION</h2>
               <div className="space-y-3">
                 {data.education.map((edu, index) => (
-                  <div key={index} className="break-inside-avoid">
+                  <div key={index}>
                     <h3 className="font-bold text-gray-900">{edu.degree}</h3>
                     <p className="text-gray-700">{edu.institution}</p>
                     <p className="text-gray-600 text-sm">
@@ -1744,7 +1021,7 @@ export function PikachuTemplate({ data }: TemplateProps) {
           )}
 
           {data.skills && data.skills.length > 0 && (
-            <div className="break-inside-avoid">
+            <div>
               <h2 className="text-2xl font-bold text-yellow-600 mb-4 pb-2 border-b-2 border-yellow-500">SKILLS</h2>
               <div className="flex flex-wrap gap-2">
                 {data.skills.map((skill, index) => {
@@ -1765,74 +1042,6 @@ export function PikachuTemplate({ data }: TemplateProps) {
             </div>
           )}
         </div>
-
-        {/* Certifications & Achievements */}
-        {(data.certifications && data.certifications.length > 0) || (data.achievements && data.achievements.length > 0) ? (
-          <div className="grid grid-cols-2 gap-8 mb-8">
-            {data.certifications && data.certifications.length > 0 && (
-              <div className="break-inside-avoid">
-                <h2 className="text-2xl font-bold text-yellow-600 mb-4 pb-2 border-b-2 border-yellow-500">CERTIFICATIONS</h2>
-                <div className="space-y-3">
-                  {data.certifications.map((cert, index) => (
-                    <div key={index} className="break-inside-avoid">
-                      <h3 className="font-bold text-gray-900">{cert.name}</h3>
-                      <p className="text-gray-700">{cert.issuer}</p>
-                      <p className="text-gray-600 text-sm">{new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</p>
-                      {cert.credentialId && <p className="text-gray-600 text-xs">ID: {cert.credentialId}</p>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {data.achievements && data.achievements.length > 0 && (
-              <div className="break-inside-avoid">
-                <h2 className="text-2xl font-bold text-yellow-600 mb-4 pb-2 border-b-2 border-yellow-500">ACHIEVEMENTS</h2>
-                <div className="space-y-3">
-                  {data.achievements.map((achievement, index) => (
-                    <div key={index} className="break-inside-avoid">
-                      <h3 className="font-bold text-gray-900">{achievement.title}</h3>
-                      {achievement.date && <p className="text-gray-600 text-xs mb-1">{new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</p>}
-                      <p className="text-gray-700 whitespace-pre-line">{achievement.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : null}
-
-        {/* Custom Sections */}
-        {data.customSections && data.customSections.length > 0 && (
-          <>
-            {data.customSections.map((section, index) => (
-              <div key={index} className="mb-8 break-inside-avoid">
-                <h2 className="text-2xl font-bold text-yellow-600 mb-4 pb-2 border-b-2 border-yellow-500">{section.title.toUpperCase()}</h2>
-                <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4">
-                  <p className="text-gray-700 whitespace-pre-line">{section.content}</p>
-                </div>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* References */}
-        {data.references && data.references.length > 0 && (
-          <div className="break-inside-avoid">
-            <h2 className="text-2xl font-bold text-yellow-600 mb-4 pb-2 border-b-2 border-yellow-500">REFERENCES</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {data.references.map((ref, index) => (
-                <div key={index} className="bg-yellow-50 p-4 rounded break-inside-avoid">
-                  <h3 className="font-bold text-gray-900">{ref.name}</h3>
-                  <p className="text-gray-700 text-sm">{ref.position}</p>
-                  <p className="text-gray-700 text-sm">{ref.company}</p>
-                  {ref.email && <p className="text-gray-600 text-sm">{ref.email}</p>}
-                  {ref.phone && <p className="text-gray-600 text-sm">{ref.phone}</p>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1905,7 +1114,7 @@ export function RhyhornTemplate({ data }: TemplateProps) {
       )}
 
       {data.skills && data.skills.length > 0 && (
-        <div className="mb-8 break-inside-avoid">
+        <div>
           <h2 className="text-2xl font-bold mb-4 text-center uppercase border-b-2 border-gray-900 pb-2">Skills & Expertise</h2>
           <div className="flex flex-wrap gap-2 justify-center">
             {data.skills.map((skill, index) => (
@@ -1913,72 +1122,6 @@ export function RhyhornTemplate({ data }: TemplateProps) {
                 <CheckCircle2 className="h-4 w-4" />
                 {skill}
               </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Certifications */}
-      {data.certifications && data.certifications.length > 0 && (
-        <div className="mb-8 break-inside-avoid">
-          <h2 className="text-2xl font-bold mb-4 text-center uppercase border-b-2 border-gray-900 pb-2">Certifications</h2>
-          <div className="space-y-3">
-            {data.certifications.map((cert, index) => (
-              <div key={index} className="text-center break-inside-avoid">
-                <h3 className="font-bold text-lg">{cert.name}</h3>
-                <p className="text-gray-700">{cert.issuer}</p>
-                <p className="text-gray-600 text-sm">{new Date(cert.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
-                {cert.credentialId && <p className="text-gray-600 text-xs">Credential ID: {cert.credentialId}</p>}
-                {cert.url && <a href={cert.url} className="text-gray-700 text-sm underline">View Certificate</a>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Achievements */}
-      {data.achievements && data.achievements.length > 0 && (
-        <div className="mb-8 break-inside-avoid">
-          <h2 className="text-2xl font-bold mb-4 text-center uppercase border-b-2 border-gray-900 pb-2">Achievements</h2>
-          <div className="space-y-4">
-            {data.achievements.map((achievement, index) => (
-              <div key={index} className="text-center break-inside-avoid">
-                <h3 className="font-bold text-lg">{achievement.title}</h3>
-                {achievement.date && (
-                  <p className="text-gray-600 text-sm mb-1">{new Date(achievement.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
-                )}
-                <p className="text-gray-700 whitespace-pre-line">{achievement.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Custom Sections */}
-      {data.customSections && data.customSections.length > 0 && (
-        <>
-          {data.customSections.map((section, index) => (
-            <div key={index} className="mb-8 break-inside-avoid">
-              <h2 className="text-2xl font-bold mb-4 text-center uppercase border-b-2 border-gray-900 pb-2">{section.title}</h2>
-              <p className="text-gray-700 leading-relaxed text-center whitespace-pre-line">{section.content}</p>
-            </div>
-          ))}
-        </>
-      )}
-
-      {/* References */}
-      {data.references && data.references.length > 0 && (
-        <div className="break-inside-avoid">
-          <h2 className="text-2xl font-bold mb-4 text-center uppercase border-b-2 border-gray-900 pb-2">References</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {data.references.map((ref, index) => (
-              <div key={index} className="text-center border-2 border-gray-900 p-4 rounded break-inside-avoid">
-                <h3 className="font-bold text-lg">{ref.name}</h3>
-                <p className="text-gray-700 text-sm">{ref.position}</p>
-                <p className="text-gray-700 text-sm font-semibold">{ref.company}</p>
-                {ref.email && <p className="text-gray-600 text-sm">{ref.email}</p>}
-                {ref.phone && <p className="text-gray-600 text-sm">{ref.phone}</p>}
-              </div>
             ))}
           </div>
         </div>
