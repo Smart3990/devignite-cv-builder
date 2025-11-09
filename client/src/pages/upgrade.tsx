@@ -1,53 +1,11 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Crown, Zap, ArrowLeft, Loader2 } from "lucide-react";
+import { Check, Crown, Zap, ArrowLeft, Loader2, X, Sparkles } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-
-const PLAN_FEATURES = {
-  basic: {
-    name: "Basic",
-    price: "Free",
-    color: "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100",
-    features: [
-      "1 CV per month",
-      "Basic templates",
-      "PDF download",
-      "1 AI optimization",
-    ],
-  },
-  pro: {
-    name: "Pro",
-    price: "GHS 50",
-    popular: true,
-    color: "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100",
-    features: [
-      "10 CVs per month",
-      "All templates (including premium)",
-      "PDF & Word downloads",
-      "5 AI optimizations",
-      "Cover letter generation",
-      "ATS compatibility check",
-    ],
-  },
-  premium: {
-    name: "Premium",
-    price: "GHS 99",
-    color: "bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-900 dark:text-purple-100",
-    features: [
-      "Unlimited CVs",
-      "All premium templates",
-      "All file formats",
-      "Unlimited AI optimizations",
-      "Unlimited cover letters",
-      "LinkedIn profile optimization",
-      "ATS compatibility check",
-      "Priority support",
-    ],
-  },
-};
+import pricingConfig from "../../../config/pricing.json";
 
 export default function UpgradePage() {
   const { toast } = useToast();
@@ -168,8 +126,8 @@ export default function UpgradePage() {
         )}
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {Object.entries(PLAN_FEATURES).map(([planId, plan]) => {
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+          {Object.entries(pricingConfig.plans).map(([planId, plan]: [string, any]) => {
             const isCurrentPlan = currentPlan === planId;
             const canUpgrade = ['basic', 'pro', 'premium'].indexOf(planId) > ['basic', 'pro', 'premium'].indexOf(currentPlan);
             const isProcessing = upgradeMutation.isPending && upgradeMutation.variables === planId;
@@ -177,21 +135,30 @@ export default function UpgradePage() {
             return (
               <Card
                 key={planId}
-                className={`p-6 relative ${
-                  'popular' in plan && plan.popular ? 'border-primary border-2 shadow-lg scale-105' : ''
+                className={`relative ${
+                  plan.popular ? 'border-primary border-2 shadow-lg scale-105' : ''
                 } ${isCurrentPlan ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                 data-testid={`card-plan-${planId}`}
               >
-                {'popular' in plan && plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
                     <span className="bg-primary text-primary-foreground text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">
                       Most Popular
                     </span>
                   </div>
                 )}
 
+                {plan.badge && planId === 'premium' && (
+                  <div className="absolute -top-4 right-4 z-10">
+                    <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                      <Crown className="h-3 w-3" />
+                      {plan.badge}
+                    </span>
+                  </div>
+                )}
+
                 {isCurrentPlan && (
-                  <div className="absolute -top-4 right-4">
+                  <div className="absolute -top-4 right-4 z-10">
                     <span className="bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
                       <Check className="h-3 w-3" />
                       Current Plan
@@ -199,53 +166,156 @@ export default function UpgradePage() {
                   </div>
                 )}
 
-                {/* Plan Header */}
-                <div className="text-center mb-6">
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg mb-4 ${plan.color}`}>
-                    <Crown className="h-5 w-5" />
-                    <span className="font-bold">{plan.name}</span>
+                <CardHeader className="pb-4">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-4 min-h-[40px]">
+                      {plan.description}
+                    </p>
+                    <div className="mb-4">
+                      <div className="mb-1">
+                        <span className="text-4xl font-bold">{plan.displayPrice}</span>
+                        {plan.price > 0 && <span className="text-muted-foreground ml-2">/month</span>}
+                      </div>
+                      {plan.price > 0 && (
+                        <p className="text-xs text-muted-foreground">Monthly subscription, cancel anytime</p>
+                      )}
+                    </div>
                   </div>
-                  <div className="mb-2">
-                    <span className="text-4xl font-bold">{plan.price}</span>
-                    {planId !== 'basic' && <span className="text-muted-foreground ml-2">/month</span>}
+                </CardHeader>
+
+                <CardContent className="space-y-6">
+                  {/* Features List */}
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-3">What's Included</p>
+                    <ul className="space-y-2.5">
+                      {plan.features.map((feature: string, i: number) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
 
-                {/* Features List */}
-                <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm">
-                      <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA Button */}
-                <Button
-                  onClick={() => handleUpgrade(planId)}
-                  className="w-full"
-                  size="lg"
-                  variant={isCurrentPlan ? "outline" : ('popular' in plan && plan.popular) ? "default" : "secondary"}
-                  disabled={isCurrentPlan || !canUpgrade || isProcessing}
-                  data-testid={`button-upgrade-${planId}`}
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : isCurrentPlan ? (
-                    "Current Plan"
-                  ) : !canUpgrade ? (
-                    "Lower Plan"
-                  ) : (
-                    `Upgrade to ${plan.name}`
+                  {/* Limitations */}
+                  {plan.limitations && plan.limitations.length > 0 && plan.limitations[0] !== "None - Full access to all platform features!" && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase mb-3">Limitations</p>
+                      <ul className="space-y-2">
+                        {plan.limitations.map((limitation: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                            <X className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                            <span>{limitation}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
-                </Button>
+
+                  {planId === 'premium' && (
+                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 p-3 rounded-lg border border-amber-200/50 dark:border-amber-800/50">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                        <span className="font-medium text-amber-900 dark:text-amber-100">Full platform access with no restrictions!</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CTA Button */}
+                  <Button
+                    onClick={() => handleUpgrade(planId)}
+                    className="w-full"
+                    size="lg"
+                    variant={isCurrentPlan ? "outline" : plan.popular ? "default" : "secondary"}
+                    disabled={isCurrentPlan || !canUpgrade || isProcessing}
+                    data-testid={`button-upgrade-${planId}`}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : isCurrentPlan ? (
+                      "Current Plan"
+                    ) : !canUpgrade ? (
+                      "Lower Plan"
+                    ) : (
+                      `Upgrade to ${plan.name}`
+                    )}
+                  </Button>
+                </CardContent>
               </Card>
             );
           })}
+        </div>
+
+        {/* Feature Comparison Table */}
+        <div className="max-w-6xl mx-auto mb-16">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">Compare Plans</h2>
+            <p className="text-muted-foreground">
+              See how plans compare across all features
+            </p>
+          </div>
+
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr>
+                    {pricingConfig.comparisonTable.headers.map((header: string, i: number) => (
+                      <th key={i} className={`p-4 text-left font-semibold ${i === 0 ? 'sticky left-0 bg-muted/50' : 'text-center'}`}>
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pricingConfig.comparisonTable.rows.map((row: any, i: number) => (
+                    <tr key={i} className="border-t hover-elevate">
+                      <td className="p-4 font-medium sticky left-0 bg-background">
+                        {row.feature}
+                      </td>
+                      <td className="p-4 text-center">
+                        {typeof row.basic === 'boolean' ? (
+                          row.basic ? (
+                            <Check className="h-5 w-5 text-primary mx-auto" />
+                          ) : (
+                            <X className="h-5 w-5 text-muted-foreground mx-auto" />
+                          )
+                        ) : (
+                          <span className="text-sm">{row.basic}</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-center">
+                        {typeof row.pro === 'boolean' ? (
+                          row.pro ? (
+                            <Check className="h-5 w-5 text-primary mx-auto" />
+                          ) : (
+                            <X className="h-5 w-5 text-muted-foreground mx-auto" />
+                          )
+                        ) : (
+                          <span className="text-sm font-medium">{row.pro}</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-center">
+                        {typeof row.premium === 'boolean' ? (
+                          row.premium ? (
+                            <Check className="h-5 w-5 text-primary mx-auto" />
+                          ) : (
+                            <X className="h-5 w-5 text-muted-foreground mx-auto" />
+                          )
+                        ) : (
+                          <span className="text-sm font-semibold text-primary">{row.premium}</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         </div>
 
         {/* FAQ/Info Section */}

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { clerk, isAuthenticated, getUserId, clerkClient } from "./clerkAuth";
-import { insertCvSchema, insertOrderSchema, PRICING_TIERS, type PricingTier } from "@shared/schema";
+import { insertCvSchema, insertOrderSchema } from "@shared/schema";
 import { z } from "zod";
 // @ts-ignore - paystack doesn't have type definitions
 import paystack from "paystack";
@@ -667,11 +667,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Validate package type
-      if (!(packageType in PRICING_TIERS)) {
+      if (!(packageType in pricingConfig.plans)) {
         return res.status(400).json({ error: "Invalid package type" });
       }
 
-      const tier = PRICING_TIERS[packageType as PricingTier];
+      const tier = pricingConfig.plans[packageType as keyof typeof pricingConfig.plans];
 
       // Verify the CV belongs to the user
       const cv = await storage.getCv(cvId);
@@ -767,8 +767,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update order status based on payment status
       if (status === "success") {
         // Get package tier details
-        const packageType = order.packageType as "basic" | "standard" | "premium";
-        const tierConfig = PRICING_TIERS[packageType];
+        const packageType = order.packageType as "basic" | "pro" | "premium";
+        const tierConfig = pricingConfig.plans[packageType];
         
         // Get CV data for PDF generation
         const cv = await storage.getCv(order.cvId!);
@@ -786,10 +786,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           progress: 100,
           completedAt: new Date(),
           downloadUrl: `/api/orders/${order.id}/download`,
-          editsRemaining: tierConfig.editsAllowed,
-          hasCoverLetter: tierConfig.hasCoverLetter ? 1 : 0,
-          hasLinkedInOptimization: tierConfig.hasLinkedInOptimization ? 1 : 0,
-          templateCount: tierConfig.templateCount,
+          editsRemaining: tierConfig.limits.editsAllowed === -1 ? 999 : tierConfig.limits.editsAllowed,
+          hasCoverLetter: tierConfig.capabilities.hasCoverLetter ? 1 : 0,
+          hasLinkedInOptimization: tierConfig.capabilities.hasLinkedInOptimization ? 1 : 0,
+          templateCount: tierConfig.limits.templates || 0,
           pdfFileName,
         });
       } else {

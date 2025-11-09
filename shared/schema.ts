@@ -222,56 +222,78 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Order = typeof orders.$inferSelect;
 
-// Pricing tiers
+// Pricing tiers - Aligned with config/pricing.json
 export const PRICING_TIERS = {
   basic: {
-    name: "Basic CV",
+    name: "Basic Plan",
+    price: 0, // Free
+    displayPrice: "Free",
+    features: [
+      "Create 1 Professional CV",
+      "Generate 1 Cover Letter",
+      "Access to 6 Free Templates",
+      "1 AI CV Optimization",
+      "PDF Download (CV Only)",
+      "Basic ATS Compatibility Check",
+      "Standard Formatting Options",
+      "Email Support (48hr response)",
+    ],
+    editsAllowed: 1,
+    hasCoverLetter: true,
+    hasLinkedInOptimization: false,
+    templateCount: 6,
+  },
+  pro: {
+    name: "Pro Plan",
     price: 5000, // GHS 50 in pesewas (100 pesewas = 1 GHS)
     displayPrice: "GHS 50",
     features: [
-      "1 Professional CV Template",
-      "PDF Download",
-      "Basic Formatting",
-      "Lifetime Access",
-    ],
-    editsAllowed: 1,
-    hasCoverLetter: false,
-    hasLinkedInOptimization: false,
-    templateCount: 1,
-  },
-  standard: {
-    name: "CV + Cover Letter",
-    price: 12000, // GHS 120 in pesewas
-    displayPrice: "GHS 120",
-    features: [
-      "1 Professional CV Template",
-      "Matching Cover Letter",
-      "PDF Download",
-      "Advanced Formatting",
-      "Lifetime Access",
+      "Create Unlimited CVs",
+      "Generate Unlimited Cover Letters",
+      "Access to 9 Templates (Free + Standard)",
+      "3 AI CV Optimizations per month",
+      "Cover Letter Tone Editor",
+      "10 Edits per CV",
+      "Advanced ATS Compatibility Analysis",
+      "PDF Downloads (CV + Cover Letter)",
+      "Email Analytics Dashboard",
+      "Cloud Storage (Last 10 CVs)",
+      "CV Version History",
+      "Professional Formatting Options",
+      "Email Support (24hr response)",
     ],
     popular: true,
-    editsAllowed: 3,
+    editsAllowed: 10,
     hasCoverLetter: true,
     hasLinkedInOptimization: false,
-    templateCount: 1,
+    templateCount: 9,
   },
   premium: {
-    name: "Comprehensive Package",
-    price: 15000, // GHS 150 in pesewas
-    displayPrice: "GHS 150",
+    name: "Premium Plan",
+    price: 9900, // GHS 99 in pesewas
+    displayPrice: "GHS 99",
     features: [
-      "3 Professional CV Templates",
-      "Matching Cover Letter",
-      "LinkedIn Profile Optimization",
-      "PDF Download",
-      "Premium Support",
-      "Lifetime Access",
+      "Create Unlimited CVs",
+      "Generate Unlimited Cover Letters",
+      "Access to ALL 12 Templates (Including Premium)",
+      "Unlimited AI CV Optimizations",
+      "LinkedIn Profile Optimization with PDF",
+      "AI-Powered Job Fit Analysis",
+      "Cover Letter Tone & Style Editor",
+      "Unlimited Edits on All Documents",
+      "Advanced ATS Compatibility Score",
+      "PDF Downloads (CV + Cover Letter + LinkedIn)",
+      "Complete Analytics Dashboard",
+      "Unlimited Cloud Storage & History",
+      "Direct Recruiter-Share Links",
+      "Custom Branding Options",
+      "Priority Support (4hr response)",
+      "Early Access to New Features",
     ],
     editsAllowed: 999, // Unlimited edits
     hasCoverLetter: true,
     hasLinkedInOptimization: true,
-    templateCount: 3,
+    templateCount: 12,
   },
 } as const;
 

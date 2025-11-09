@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowLeft, Loader2 } from "lucide-react";
+import { Check, ArrowLeft, Loader2, X, Crown, Sparkles } from "lucide-react";
 import { PRICING_TIERS } from "@shared/schema";
 import { Link, useLocation } from "wouter";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import pricingConfig from "../../../config/pricing.json";
 
 export default function PricingPage() {
   const { toast } = useToast();
@@ -151,8 +152,8 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
-          {Object.entries(PRICING_TIERS).map(([key, tier]) => {
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+          {Object.entries(pricingConfig.plans).map(([key, plan]: [string, any]) => {
             // Hide Basic package if user has used premium features
             const isBasicPackage = key === 'basic';
             const shouldBlurBasic = needsPremiumPackage && isBasicPackage;
@@ -160,8 +161,8 @@ export default function PricingPage() {
             return (
               <Card
                 key={key}
-                className={`p-6 relative transition-all duration-200 ${
-                  'popular' in tier && tier.popular ? 'border-primary border-2 shadow-lg' : ''
+                className={`relative transition-all duration-200 ${
+                  plan.popular ? 'border-primary border-2 shadow-lg scale-105' : ''
                 } ${shouldBlurBasic ? 'opacity-40 blur-sm pointer-events-none' : 'hover-elevate active-elevate-2'}`}
                 data-testid={`card-package-${key}`}
               >
@@ -174,50 +175,168 @@ export default function PricingPage() {
                 </div>
               )}
               
-              {'popular' in tier && tier.popular && !shouldBlurBasic && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              {plan.popular && !shouldBlurBasic && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
                   <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-md">
                     Most Popular
                   </span>
                 </div>
               )}
 
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold mb-2">{tier.name}</h3>
-                <div className="mb-4">
-                  <span className="text-4xl font-bold">{tier.displayPrice}</span>
-                  <span className="text-muted-foreground ml-1">once</span>
+              {plan.badge && key === 'premium' && !shouldBlurBasic && (
+                <div className="absolute -top-3 right-4 z-10">
+                  <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                    <Crown className="h-3 w-3" />
+                    {plan.badge}
+                  </span>
                 </div>
-              </div>
+              )}
 
-              <ul className="space-y-3 mb-6">
-                {tier.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm">
-                    <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
+              <CardHeader className="pb-4">
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-4 min-h-[40px]">
+                    {plan.description}
+                  </p>
+                  <div className="mb-4">
+                    <div className="mb-1">
+                      <span className="text-4xl font-bold">{plan.displayPrice}</span>
+                      {plan.price > 0 && <span className="text-muted-foreground ml-2">/month</span>}
+                    </div>
+                    {plan.price > 0 && (
+                      <p className="text-xs text-muted-foreground">Monthly subscription, cancel anytime</p>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
 
-              <Button
-                onClick={() => handleSelectPackage(key)}
-                className="w-full"
-                variant={'popular' in tier && tier.popular ? "default" : "outline"}
-                disabled={processingPackage === key || initializePayment.isPending}
-                data-testid={`button-pay-${key}`}
-              >
-                {processingPackage === key ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  "Continue to Payment"
+              <CardContent className="space-y-6">
+                {/* Features List */}
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase mb-3">What's Included</p>
+                  <ul className="space-y-2.5">
+                    {plan.features.map((feature: string, i: number) => (
+                      <li key={i} className="flex items-start gap-2 text-sm">
+                        <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Limitations */}
+                {plan.limitations && plan.limitations.length > 0 && plan.limitations[0] !== "None - Full access to all platform features!" && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-3">Limitations</p>
+                    <ul className="space-y-2">
+                      {plan.limitations.map((limitation: string, i: number) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <X className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                          <span>{limitation}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
-              </Button>
+
+                {key === 'premium' && (
+                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 p-3 rounded-lg border border-amber-200/50 dark:border-amber-800/50">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                      <span className="font-medium text-amber-900 dark:text-amber-100">Full platform access with no restrictions!</span>
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  onClick={() => handleSelectPackage(key)}
+                  className="w-full"
+                  size="lg"
+                  variant={plan.popular ? "default" : "outline"}
+                  disabled={processingPackage === key || initializePayment.isPending}
+                  data-testid={`button-pay-${key}`}
+                >
+                  {processingPackage === key ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Continue to Payment"
+                  )}
+                </Button>
+              </CardContent>
             </Card>
             );
           })}
+        </div>
+
+        {/* Feature Comparison Table */}
+        <div className="max-w-6xl mx-auto mb-16">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">Compare Plans</h2>
+            <p className="text-muted-foreground">
+              See which plan is right for you
+            </p>
+          </div>
+
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr>
+                    {pricingConfig.comparisonTable.headers.map((header: string, i: number) => (
+                      <th key={i} className={`p-4 text-left font-semibold ${i === 0 ? 'sticky left-0 bg-muted/50' : 'text-center'}`}>
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pricingConfig.comparisonTable.rows.map((row: any, i: number) => (
+                    <tr key={i} className="border-t hover-elevate">
+                      <td className="p-4 font-medium sticky left-0 bg-background">
+                        {row.feature}
+                      </td>
+                      <td className="p-4 text-center">
+                        {typeof row.basic === 'boolean' ? (
+                          row.basic ? (
+                            <Check className="h-5 w-5 text-primary mx-auto" />
+                          ) : (
+                            <X className="h-5 w-5 text-muted-foreground mx-auto" />
+                          )
+                        ) : (
+                          <span className="text-sm">{row.basic}</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-center">
+                        {typeof row.pro === 'boolean' ? (
+                          row.pro ? (
+                            <Check className="h-5 w-5 text-primary mx-auto" />
+                          ) : (
+                            <X className="h-5 w-5 text-muted-foreground mx-auto" />
+                          )
+                        ) : (
+                          <span className="text-sm font-medium">{row.pro}</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-center">
+                        {typeof row.premium === 'boolean' ? (
+                          row.premium ? (
+                            <Check className="h-5 w-5 text-primary mx-auto" />
+                          ) : (
+                            <X className="h-5 w-5 text-muted-foreground mx-auto" />
+                          )
+                        ) : (
+                          <span className="text-sm font-semibold text-primary">{row.premium}</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         </div>
 
         <div className="max-w-3xl mx-auto">
