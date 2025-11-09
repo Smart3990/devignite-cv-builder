@@ -226,8 +226,8 @@ export type Order = typeof orders.$inferSelect;
 export const PRICING_TIERS = {
   basic: {
     name: "Basic Plan",
-    price: 0, // Free
-    displayPrice: "Free",
+    price: 5000, // GHS 50 in pesewas (100 pesewas = 1 GHS)
+    displayPrice: "GHS 50",
     features: [
       "Create 1 Professional CV",
       "Generate 1 Cover Letter",
@@ -245,8 +245,8 @@ export const PRICING_TIERS = {
   },
   pro: {
     name: "Pro Plan",
-    price: 5000, // GHS 50 in pesewas (100 pesewas = 1 GHS)
-    displayPrice: "GHS 50",
+    price: 12000, // GHS 120 in pesewas (100 pesewas = 1 GHS)
+    displayPrice: "GHS 120",
     features: [
       "Create Unlimited CVs",
       "Generate Unlimited Cover Letters",
@@ -270,8 +270,8 @@ export const PRICING_TIERS = {
   },
   premium: {
     name: "Premium Plan",
-    price: 9900, // GHS 99 in pesewas
-    displayPrice: "GHS 99",
+    price: 15000, // GHS 150 in pesewas
+    displayPrice: "GHS 150",
     features: [
       "Create Unlimited CVs",
       "Generate Unlimited Cover Letters",

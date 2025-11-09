@@ -4,8 +4,8 @@
     "basic": {
       "id": "basic",
       "name": "Basic Plan",
-      "price": 0,
-      "displayPrice": "Free",
+      "price": 5000,
+      "displayPrice": "GHS 50",
       "isDefault": true,
       "description": "Perfect for getting started with your first professional CV",
       "features": [
@@ -57,8 +57,8 @@
     "pro": {
       "id": "pro",
       "name": "Pro Plan",
-      "price": 5000,
-      "displayPrice": "GHS 50",
+      "price": 12000,
+      "displayPrice": "GHS 120",
       "popular": true,
       "description": "Ideal for active job seekers who need multiple applications",
       "features": [
@@ -115,8 +115,8 @@
     "premium": {
       "id": "premium",
       "name": "Premium Plan",
-      "price": 9900,
-      "displayPrice": "GHS 99",
+      "price": 15000,
+      "displayPrice": "GHS 150",
       "badge": "Best Value",
       "description": "Complete career toolkit for serious professionals and executives",
       "features": [
