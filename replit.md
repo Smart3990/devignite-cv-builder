@@ -62,6 +62,35 @@ The platform features a professional SaaS design inspired by Linear/Notion, util
 - **TanStack Query**: For data fetching.
 - **Vite**: Frontend build tool.
 
+## Admin Access System
+
+### Portable Admin Credentials (November 8, 2025)
+The platform now includes a **hosting-independent admin credential system** for easy deployment to any platform:
+
+**Features**:
+- Environment-based admin setup (`ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env`)
+- Automatic admin promotion on server startup
+- Works on any hosting provider (Render, Railway, Vercel, AWS, etc.)
+- No dependency on Replit-specific features
+
+**How It Works**:
+1. Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your environment variables
+2. Sign up via Clerk with that email
+3. Server automatically promotes the user to admin role on startup
+4. Access admin dashboard at `/admin/sales`, `/admin/users`, etc.
+
+**Files**:
+- `server/admin-init.ts` - Admin initialization logic
+- `ADMIN_SETUP.md` - Complete setup guide for all hosting platforms
+- `.env.example` - Template with admin credential fields
+
+**Development Tools**:
+- `/dev-tools` page (development-only) for quick admin promotion
+- `/api/dev/make-me-admin` endpoint (development-only, secured)
+- Both require authentication and check `NODE_ENV === 'development'`
+
+**Current Admin User**: `rakibamohammed26@gmail.com` (promoted via SQL)
+
 ## Recent Updates
 
 ### October 30, 2025 - Replit Environment Setup

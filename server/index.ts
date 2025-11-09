@@ -1,6 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { initializeAdminUser } from "./admin-init";
+import { storage } from "./storage";
 
 const app = express();
 app.use(express.json());
@@ -62,6 +64,9 @@ app.use((req, res, next) => {
     }
 
     const server = await registerRoutes(app);
+
+    // Initialize admin user from environment variables
+    await initializeAdminUser(storage);
 
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       const status = err.status || err.statusCode || 500;
