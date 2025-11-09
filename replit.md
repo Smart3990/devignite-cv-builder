@@ -89,7 +89,9 @@ The platform now includes a **hosting-independent admin credential system** for 
 - `/api/dev/make-me-admin` endpoint (development-only, secured)
 - Both require authentication and check `NODE_ENV === 'development'`
 
-**Current Admin User**: `rakibamohammed26@gmail.com` (promoted via SQL)
+**Current Admin Users**: 
+- `rakibamohammed26@gmail.com` (promoted via SQL)
+- `blanc.69458@gmail.com` (promoted via SQL)
 
 ## Recent Updates
 

@@ -7,19 +7,41 @@
       "price": 0,
       "displayPrice": "Free",
       "isDefault": true,
+      "description": "Perfect for getting started with your first professional CV",
       "features": [
-        "1 Professional CV",
-        "1 Cover Letter",
-        "PDF Download",
-        "Basic Formatting"
+        "Create 1 Professional CV",
+        "Generate 1 Cover Letter",
+        "Access to 6 Free Templates",
+        "1 AI CV Optimization",
+        "PDF Download (CV Only)",
+        "Basic ATS Compatibility Check",
+        "Standard Formatting Options",
+        "Email Support (48hr response)"
       ],
+      "limitations": [
+        "Limited to 1 CV creation",
+        "Limited to 1 cover letter",
+        "Only 1 AI enhancement allowed",
+        "No LinkedIn optimization",
+        "No premium templates access",
+        "No cloud storage history",
+        "Limited editing (1 revision only)"
+      ],
+      "upgradePrompts": {
+        "cvLimit": "You've reached your free CV limit. Upgrade to Pro for unlimited CVs!",
+        "coverLetterLimit": "Create unlimited cover letters with Pro plan. Upgrade now!",
+        "aiLimit": "You've used your free AI optimization. Upgrade to Pro for 3 more AI runs!",
+        "linkedIn": "LinkedIn Profile Optimization is a Premium feature. Upgrade to unlock!",
+        "premiumTemplates": "Premium templates are only available on Pro and Premium plans.",
+        "edits": "You've used your single edit. Upgrade to Pro for 10 edits per CV!"
+      },
       "limits": {
         "cvGenerations": 1,
         "coverLetterGenerations": 1,
         "aiRuns": 1,
         "editsAllowed": 1,
         "templateAccess": "free",
-        "templates": 1
+        "templates": 6
       },
       "capabilities": {
         "hasCoverLetter": true,
@@ -38,23 +60,46 @@
       "price": 5000,
       "displayPrice": "GHS 50",
       "popular": true,
+      "description": "Ideal for active job seekers who need multiple applications",
       "features": [
-        "3 AI Generations",
-        "Unlimited CVs",
-        "Unlimited Cover Letters",
+        "Create Unlimited CVs",
+        "Generate Unlimited Cover Letters",
+        "Access to 9 Templates (Free + Standard)",
+        "3 AI CV Optimizations per month",
         "Cover Letter Tone Editor",
-        "Editable CV Sections",
-        "Email Analytics Summary",
-        "PDF Download",
-        "Advanced Formatting"
+        "10 Edits per CV",
+        "Advanced ATS Compatibility Analysis",
+        "PDF Downloads (CV + Cover Letter)",
+        "Email Analytics Dashboard",
+        "Cloud Storage (Last 10 CVs)",
+        "CV Version History",
+        "Professional Formatting Options",
+        "Email Support (24hr response)"
       ],
+      "limitations": [
+        "3 AI enhancements per month",
+        "No LinkedIn profile optimization",
+        "No premium templates (3 locked)",
+        "No AI job fit suggestions",
+        "No priority support",
+        "Limited cloud history (10 CVs only)"
+      ],
+      "upgradePrompts": {
+        "aiLimit": "You've used all 3 AI runs this month. Upgrade to Premium for unlimited AI!",
+        "linkedIn": "LinkedIn Profile Optimization requires Premium plan. Upgrade now!",
+        "premiumTemplates": "Unlock 3 premium templates with the Premium plan!",
+        "jobFit": "AI Job Fit Analysis is exclusive to Premium subscribers.",
+        "cloudHistory": "Store unlimited CVs in the cloud with Premium plan.",
+        "support": "Get priority support with Premium - upgrade today!"
+      },
       "limits": {
         "cvGenerations": -1,
         "coverLetterGenerations": -1,
         "aiRuns": 3,
         "editsAllowed": 10,
         "templateAccess": "free",
-        "templates": 5
+        "templates": 9,
+        "cloudHistoryLimit": 10
       },
       "capabilities": {
         "hasCoverLetter": true,
@@ -72,24 +117,38 @@
       "name": "Premium Plan",
       "price": 9900,
       "displayPrice": "GHS 99",
+      "badge": "Best Value",
+      "description": "Complete career toolkit for serious professionals and executives",
       "features": [
-        "Unlimited AI Usage",
-        "Unlimited CVs & Cover Letters",
-        "Access to Premium Templates",
-        "AI-Enhanced Job Fit Suggestions",
-        "LinkedIn Profile Optimization",
-        "CV and Cover Letter Cloud History",
+        "Create Unlimited CVs",
+        "Generate Unlimited Cover Letters",
+        "Access to ALL 12 Templates (Including Premium)",
+        "Unlimited AI CV Optimizations",
+        "LinkedIn Profile Optimization with PDF",
+        "AI-Powered Job Fit Analysis",
+        "Cover Letter Tone & Style Editor",
+        "Unlimited Edits on All Documents",
+        "Advanced ATS Compatibility Score",
+        "PDF Downloads (CV + Cover Letter + LinkedIn)",
+        "Complete Analytics Dashboard",
+        "Unlimited Cloud Storage & History",
         "Direct Recruiter-Share Links",
-        "Priority Support Channel",
-        "Advanced Analytics"
+        "Custom Branding Options",
+        "Priority Support (4hr response)",
+        "Early Access to New Features"
       ],
+      "limitations": [
+        "None - Full access to all platform features!"
+      ],
+      "upgradePrompts": {},
       "limits": {
         "cvGenerations": -1,
         "coverLetterGenerations": -1,
         "aiRuns": -1,
         "editsAllowed": -1,
         "templateAccess": "all",
-        "templates": -1
+        "templates": 12,
+        "cloudHistoryLimit": -1
       },
       "capabilities": {
         "hasCoverLetter": true,
@@ -99,8 +158,70 @@
         "hasPremiumTemplates": true,
         "hasJobFitAI": true,
         "hasPrioritySupport": true,
-        "hasCloudHistory": true
+        "hasCloudHistory": true,
+        "hasRecruiterLinks": true,
+        "hasCustomBranding": true,
+        "hasEarlyAccess": true
       }
     }
+  },
+  "comparisonTable": {
+    "headers": ["Feature", "Basic", "Pro", "Premium"],
+    "rows": [
+      {
+        "feature": "CVs per month",
+        "basic": "1",
+        "pro": "Unlimited",
+        "premium": "Unlimited"
+      },
+      {
+        "feature": "Cover Letters",
+        "basic": "1",
+        "pro": "Unlimited",
+        "premium": "Unlimited"
+      },
+      {
+        "feature": "AI Optimizations",
+        "basic": "1",
+        "pro": "3/month",
+        "premium": "Unlimited"
+      },
+      {
+        "feature": "Template Access",
+        "basic": "6 Free",
+        "pro": "9 Standard",
+        "premium": "All 12 (Premium)"
+      },
+      {
+        "feature": "LinkedIn Optimization",
+        "basic": false,
+        "pro": false,
+        "premium": true
+      },
+      {
+        "feature": "Job Fit Analysis",
+        "basic": false,
+        "pro": false,
+        "premium": true
+      },
+      {
+        "feature": "Edits per CV",
+        "basic": "1",
+        "pro": "10",
+        "premium": "Unlimited"
+      },
+      {
+        "feature": "Cloud History",
+        "basic": false,
+        "pro": "Last 10",
+        "premium": "Unlimited"
+      },
+      {
+        "feature": "Support Response",
+        "basic": "48 hours",
+        "pro": "24 hours",
+        "premium": "4 hours"
+      }
+    ]
   }
 }
