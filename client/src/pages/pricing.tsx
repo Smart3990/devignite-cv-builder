@@ -159,10 +159,10 @@ export default function PricingPage() {
             const shouldBlurBasic = needsPremiumPackage && isBasicPackage;
             
             return (
-              <div key={key} className={`${plan.popular ? 'md:scale-110 md:-my-6 md:z-10' : ''} transition-transform duration-300`}>
+              <div key={key} className={`${plan.popular ? 'scale-105 sm:scale-110 -my-4 sm:-my-6 z-10' : ''} transition-transform duration-300`}>
               <Card
                 className={`relative transition-all duration-200 ${
-                  plan.popular ? 'border-primary border-[3px] shadow-2xl ring-2 ring-primary/20' : ''
+                  plan.popular ? 'border-primary border-[3px] shadow-2xl ring-4 ring-primary/30 bg-gradient-to-b from-primary/5 to-transparent' : ''
                 } ${shouldBlurBasic ? 'opacity-40 blur-sm pointer-events-none' : 'hover-elevate active-elevate-2'}`}
                 data-testid={`card-package-${key}`}
               >
