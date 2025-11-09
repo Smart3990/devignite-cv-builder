@@ -159,10 +159,10 @@ export default function PricingPage() {
             const shouldBlurBasic = needsPremiumPackage && isBasicPackage;
             
             return (
+              <div key={key} className={`${plan.popular ? 'md:scale-105 md:-my-4' : ''}`}>
               <Card
-                key={key}
                 className={`relative transition-all duration-200 ${
-                  plan.popular ? 'border-primary border-2 shadow-lg scale-105' : ''
+                  plan.popular ? 'border-primary border-2 shadow-lg' : ''
                 } ${shouldBlurBasic ? 'opacity-40 blur-sm pointer-events-none' : 'hover-elevate active-elevate-2'}`}
                 data-testid={`card-package-${key}`}
               >
@@ -267,6 +267,7 @@ export default function PricingPage() {
                 </Button>
               </CardContent>
             </Card>
+            </div>
             );
           })}
         </div>
